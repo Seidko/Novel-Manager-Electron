@@ -143,14 +143,6 @@
             }
         })
         const mw = app.mount('#main-wrapper')
-
-        electron.ipcRenderer.once('novel_manager_data_init', (data) => {
-            window.data = data
-        })
-
-        electron.ipcRenderer.on('novel_manager_data_change', (key, value) => {
-            data[key] = value
-        })
     </script>
 </body>
 

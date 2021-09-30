@@ -9,22 +9,6 @@ class WindowsEsistError extends Error {
     }
 }
 
-fs.readFile(__dirname + '\\novel_manager.json', 'utf8', (err, data) => {
-    if (err) { throw err; };
-    let temp = JSON.parse(data)
-    global.novel_manager_data = new Proxy(temp, {
-        get(target, key) {
-            return target[key];
-        },
-        set(target, key, value) {
-            target[key] = value;
-            electron.ipcRenderer.send('novel_manager_data_change', key, value);
-        }
-    })
-    electron.ipcRenderer.send('novel_manager_data_init', temp)
-    
-})
-
 function createWindow() {
     if (global.win) { throw new WindowsEsistError("Main window is esist."); };
     global.win = new electron.BrowserWindow({
