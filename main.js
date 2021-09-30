@@ -1,0 +1,76 @@
+"use strict";
+const electron = require('electron')
+const fs = require('fs')
+// const path = require('path')
+
+class WindowsEsistError extends Error {
+    constructor(msg) {
+        super(msg)
+    }
+}
+
+fs.readFile(__dirname + '\\novel_manager.json', 'utf8', (err, data) => {
+    if (err) { throw err; };
+    let temp = JSON.parse(data)
+    global.novel_manager_data = new Proxy(temp, {
+        get(target, key) {
+            return target[key];
+        },
+        set(target, key, value) {
+            target[key] = value;
+            electron.ipcRenderer.send('novel_manager_data_change', key, value);
+        }
+    })
+    electron.ipcRenderer.send('novel_manager_data_init', temp)
+    
+})
+
+function createWindow() {
+    if (global.win) { throw new WindowsEsistError("Main window is esist."); };
+    global.win = new electron.BrowserWindow({
+        width: 800,
+        height: 555,
+        minWidth: 800,
+        minHeight: 555,
+        // maxWidth: 1600,
+        // maxHeight: 900,
+        autoHideMenuBar: true,
+        // frame: false,
+        titleBarStyle: 'hidden',
+        webPreferences: {
+            devTools: true,
+            nativeWindowOpen: true,
+            contextIsolation: false,
+            nodeIntegration: true,
+            // sandbox: true
+            preload: [
+                `${__dirname}\\preload.js`
+            ]
+        },
+
+    });
+    global.win.loadFile('nmelec.html');
+}
+
+electron.app.on('ready', () => {
+    createWindow();
+});
+
+electron.app.on('window-all-closed', () => {
+    console.log('app quit');
+    electron.app.quit();
+});
+
+electron.ipcMain.on('close_win', () => {
+    electron.app.quit();
+});
+
+electron.ipcMain.on('minimize_win', () => {
+    win.minimize();
+});
+
+electron.ipcMain.on('reload_html', () => {
+    win.loadFile('nmelec.html');
+});
+
+
