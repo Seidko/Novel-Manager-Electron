@@ -24,12 +24,11 @@ function createWindow() {
         webPreferences: {
             devTools: true,
             nativeWindowOpen: true,
-            contextIsolation: false,
+            // contextIsolation: false, // 取消注释以后能够在渲染器进程中使用nodejs api
             nodeIntegration: true,
             // sandbox: true
-            preload: [
-                `${__dirname}\\preload.js`
-            ]
+            preload: `${__dirname}\\preload.js`
+
         },
 
     });
@@ -58,3 +57,4 @@ electron.ipcMain.on('reload_html', () => {
 });
 
 
+var a = "aaaaaaa"

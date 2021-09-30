@@ -7,10 +7,9 @@
     <title>Novel Manager小说下载管理器</title>
     <script src="./js/vue3.js"></script>
     <script>
-        const electron = require('electron');
         window.addEventListener('keydown', event => {
             if (event.code === 'F5') {
-                electron.ipcRenderer.send('reload_html')
+                electron.win.reload_html()
             }
         }, true);
     </script>
@@ -128,12 +127,10 @@
                 }
             },
             methods: {
-                close_win() {
-                    electron.ipcRenderer.send('close_win')
-                },
-                minimize_win() {
-                    electron.ipcRenderer.send('minimize_win')
-                },
+                close_win: () => electron.app.quit(),
+
+                minimize_win: () => electron.win.minimize(),
+
                 change_page(pageid) {
                     for (i in this.pagestatus) {
                         this.pagestatus[i] = false
