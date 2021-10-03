@@ -1,17 +1,19 @@
 body {
-    background : transparent url("../res/RE4wqHL.png");
-    margin     : 0px;
-    overflow   : hidden;
-    user-select: none;
+    background         : transparent url("../res/RE4wqHL.png");
+    margin             : 0px;
+    overflow           : hidden;
+    user-select        : none;
     -webkit-user-select: none;
 }
 
-
-div#mainpage {
-    display: flex;
-    justify-content: center;
-    align-items: stretch;
-    flex-direction: column ;
+div#main-wrapper {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: 40px 1fr;
+    grid-template-areas: 
+        "navbar navbar"
+        "sidebar mainpage"
+    ;
 }
 
 /* --------------------------global attribute------------------------- */
@@ -41,19 +43,20 @@ div#mainpage {
 }
 
 .selectable-list-container-alt {
-    display : flex;
+    display        : flex;
     justify-content: center;
-    align-items: center;
-    flex-direction: column ;
-    border-radius: 5px;
-    background: #FFF;
-    margin: 7px;
-    padding: 10px;
-    box-shadow   : 5px 5px 5px #00000059;
+    align-items    : center;
+    flex-direction : column;
+    border-radius  : 5px;
+    background     : #FFF;
+    margin         : 7px;
+    padding        : 10px;
+    box-shadow     : 5px 5px 5px #00000059;
 }
 
 .selectable-list-item {
-    width        : 250px;
+    transition : all 0.1s ease;
+    width        : 300px;
     margin       : 4px 8px;
     padding      : 10px;
     align-items  : center;
@@ -63,33 +66,40 @@ div#mainpage {
     box-shadow   : 5px 5px 5px #00000059;
 }
 
+.selectable-list-fill {
+    width    : 300px;
+    flex-grow: 1;
+    margin   : 0px 18px;
+    height   : 0px;
+}
+
 .selectable-list-item:hover {
     background: #dfdfdf
 }
 
 .unselectable:hover {
-    background   : #FFF
+    background: #FFF
 }
 
 
 
 .loading_list_item {
-    display: flex;
+    display       : flex;
     flex-direction: column;
-    align-items: center;
+    align-items   : center;
 }
 
 div.loading {
-    margin: 5px 0px 0px 0px;
-    height: 0px;
-    width: 0px;
-    animation: loading1 0.8s cubic-bezier(0.54, 0.21, 0.41, 0.8) infinite;
-    border-radius: 20px;
-    padding: 15px;
-    background: transparent;
-    border: 4px solid #666666;
+    margin          : 5px 0px 0px 0px;
+    height          : 0px;
+    width           : 0px;
+    animation       : loading1 0.8s cubic-bezier(0.54, 0.21, 0.41, 0.8) infinite;
+    border-radius   : 20px;
+    padding         : 15px;
+    background      : transparent;
+    border          : 4px solid #666666;
     border-top-color: #000000;
-    
+
 }
 
 
@@ -99,15 +109,46 @@ div.loading {
     }
 }
 
-.book_description_cover {
-    width: 45.75px;
-    height:61px;
+.book_description {
+    display              : grid;
+    justify-content      : start;
+    align-items          : start;
+    grid-template-columns: 46px 1fr 1fr 1fr;
+    grid-template-rows   : 1fr 1fr 1fr;
+    gap                  : 3px 5px;
 }
+
+.book_description_cover {
+    width            : 45.75px;
+    height           : 61px;
+    grid-row-start   : 1;
+    grid-row-end     : 4;
+    -webkit-user-drag: none;
+}
+
+.book_description_name {
+    grid-row         : 1;
+    grid-column-start: 2;
+    grid-column-end  : 5;
+    font             : normal normal 700 15px '微软雅黑';
+    color            : #333;
+    user-select      : all;
+    cursor           : text;
+}
+
+.book_description_info {
+    grid-row         : 2;
+    grid-column-start: 2;
+    grid-column-end  : 5;
+    font             : normal normal 700 11px '微软雅黑';
+    color            : #555
+}
+
 /* -----------------------------navbar-------------------------------- */
 
 nav#navbar {
     -webkit-app-region: drag;
-    height            : 40px;
+    grid-area: navbar;
     background        : #5c66c0d2;
     display           : flex;
     align-items       : center;
@@ -161,10 +202,10 @@ div#navbar-btn span:hover {
 
 div#sidebar {
     /* transition    : all 0.5s ease-in-out; */
-    float         : left;
-    /* width      : 350px; */
+    /* float         : left; */
+    grid-area: sidebar;
     width         : 200px;
-    min-height    : 100vh;
+    height        : calc(100vh - 40px);
     background    : #ffffff56;
     z-index       : 100;
 
@@ -219,4 +260,33 @@ ul#sidebar-list .sidebar.list-text {
     padding       : 10px;
     vertical-align: super;
     text-shadow   : 2px 2px 2px #929292;
+}
+
+/* ----------------------------mainpage------------------------------ */
+
+
+div#mainpage {
+    grid-area: mainpage;
+    display        : flex;
+    justify-content: flex-start;
+    align-items    : stretch;
+    flex-direction : column;
+    overflow-y     : scroll;
+    overflow-x     : hidden;
+    height: calc(100vh - 40px);
+}
+
+div#mainpage::-webkit-scrollbar {
+    width: 14px;
+    background-color: transparent;    
+}   
+div#mainpage::-webkit-scrollbar:hover {
+    background-color: #ffffff20; 
+}
+
+div#mainpage::-webkit-scrollbar-thumb {
+    width           : 11px;
+    background-color: #ffffff56;
+    border-radius   : 100px;
+    /* border          : 3px hidden;  */
 }

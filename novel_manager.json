@@ -4,11 +4,6 @@
             "source": {
                 "vipkanshu": "8939"
             }
-        },
-        "伏天氏": {
-            "source": {
-                "vipkanshu": "2402"
-            }
         }
     },
     "book_source": {
@@ -91,7 +86,7 @@
                         "cover": "/html/head/meta[@property='og:image']/@content",
                         "description": "/html/head/meta[@property='og:description']/@content",
                         "category": "/html/head/meta[@property='og:novel:category']/@content",
-                        "status": null,
+                        "status": "//div[@class=\"small\"]/span[3]/text()",
                         "words_count": null
                     }
                 }

@@ -60,21 +60,25 @@ function get_book_description(name) {
                             fatalError(fe) { }
                         }
                     }).parseFromString(body)
-                    var result = {name: name, url: data.book_source[item1].url}
-                    var temp = data.book_source[item1].match_rule.book_description.rule
-                    for (var i in temp){
-                        if (temp[i]){
+                    var result = { name: name, url: data.book_source[item1].url }
+                    var temp1 = data.book_source[item1].match_rule.book_description.rule
+                    for (var i in temp1) {
+                        if (temp1[i]) {
                             try {
-                            result[i] = xpath.select(temp[i], doc)[0].value
+                                var temp2 = xpath.select(temp1[i], doc)
+                                result[i] = temp2[0].nodeValue
                             }
                             catch (err) {
-                                if (err.message == "XPath parse error"){
-                                    console.error('XPath语法错误')
+                                if (err.message == "XPath parse error") {
+                                    console.error('XPath语法错误: \n' + err.stack)
                                     result[i] = "书源错误"
+                                }
+                                else {
+                                    throw err;
                                 }
                             }
                         }
-                        else{
+                        else {
                             result[i] = ""
                         }
                     }
@@ -97,10 +101,10 @@ fs.readFile(`${__dirname}\\novel_manager.json`, (err, raw) => {
 function createWindow() {
     if (global.win) { throw new WindowsEsistError("Main window is esist."); };
     global.win = new electron.BrowserWindow({
-        width: 800,
-        height: 555,
-        minWidth: 800,
-        minHeight: 555,
+        width: 890,
+        height: 570,
+        minWidth: 890,
+        minHeight: 570,
         // maxWidth: 1600,
         // maxHeight: 900,
         autoHideMenuBar: true,
