@@ -22,6 +22,9 @@ contextBridge.exposeInMainWorld(
         },
         async get_book_description(name) {
             return await ipcRenderer.invoke('get_book_description', name).then(d => {return d})
+        },
+        async get_book_contents(name) {
+            return await ipcRenderer.invoke('get_book_contents', name).then(d => { return d })
         }
     },
 

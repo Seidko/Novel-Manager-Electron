@@ -89,6 +89,18 @@
                         "status": "//div[@class=\"small\"]/span[3]/text()",
                         "words_count": null
                     }
+                },
+                "contents": {
+                    "url": "https://www.vipkanshu.com/shu/{book_id}",
+                    "method": "GET",
+                    "content": "text/html",
+                    "encoding": "UTF-8",
+                    "match_method": "xpath",
+                    "rule": {
+                        "list": "//div[@class=\"listmain\"]/dl/dd[position()>=6]",
+                        "title": "//a[0]/@href",
+                        "target": "//a[0]/text()"
+                    }
                 }
             }
         }

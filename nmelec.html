@@ -108,8 +108,9 @@
                                 {{book_description[key]["author"]}}
                                 {{book_description[key]["category"] ? "| " + book_description[key]["category"] : ""}}
                                 {{book_description[key]["status"] ? "| " + book_description[key]["status"] : ""}}
-                                {{book_description[key]["words_count"] ? "| " + book_description[key]["words_count"] : ""}}
-                                
+                                {{book_description[key]["words_count"] ? "| " + book_description[key]["words_count"] :
+                                ""}}
+
                             </span>
                         </div>
                     </div>
@@ -139,7 +140,8 @@
                         settings: false
                     },
                     nm_data: {},
-                    book_description: {}
+                    book_description: {},
+                    book_contents: {}
                 }
             },
             methods: {
@@ -161,7 +163,9 @@
             for (i in d.update_list) {
                 electron.data.get_book_description(i).then(d => {
                     mw.$data.book_description[d["name"]] = d
-                    console.log(d)
+                })
+                electron.data.get_book_contents(i).then(d => {
+                    mw.$data.book_contents[d["name"]] = d
                 })
             }
         })

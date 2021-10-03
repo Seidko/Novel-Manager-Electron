@@ -5,8 +5,7 @@ const request = require('request')
 const xpath = require('xpath')
 const xmldom = require('xmldom')
 
-// const path = require('path')
-
+// ------------------------- utils -------------------------
 
 // 返回延迟的数据，异步
 async function returnDataWithDelay(data, delay) {
@@ -16,6 +15,13 @@ async function returnDataWithDelay(data, delay) {
         }, delay);
     })
 }
+
+// 获取小说信息
+fs.readFile(`${__dirname}\\novel_manager.json`, (err, raw) => {
+    if (err) throw err;
+    global.data = JSON.parse(raw);
+    console.log('loaded file')
+})
 
 class WindowsEsistError extends Error {
     constructor(msg) {
@@ -46,42 +52,75 @@ String.prototype.format = function (args) {
     return result;
 }
 
+const dom_parser = new xmldom.DOMParser({
+    errorHandler: {
+        warning(w) { },
+        error(e) { },
+        fatalError(fe) { }
+    }
+})
+
+function get_node_by_xpaths(xpaths, dom) {
+    var result = {}
+    for (var i in xpaths) {
+        if (xpaths[i]) {
+            try {
+                result[i] = xpath.select(xpaths[i], dom)[0].nodeValue;
+            }
+            catch (err) {
+                result[i] = "书源错误"
+                if (err.message == "XPath parse error") {
+                    console.error(`XPath语法错误 \nxpath:${xpaths[i]}`)
+                }
+                else {
+                    throw err;
+                }
+            }
+        }
+        else {
+            result[i] = ""
+        }
+    }
+    return result;
+}
+
+function get_nodes_by_xpath(xp, dom) {
+    var result = []
+    try {
+        var temp1 = xpath.select(xp, dom)
+        for (var i in temp1) {
+            console.log()
+            result[result.length] = temp1[i].toString()
+        }
+        console.log()
+    }
+    catch (err) {
+        result[i] = "书源错误"
+        if (err.message == "XPath parse error") {
+            console.error(`XPath语法错误 \nxpath:${xpaths[i]}`)
+        }
+        else {
+            throw err;
+        }
+    }
+}
+
+function get_nodes_from_similar_doc_by_xpath(xpaths, docs) {
+    // TODO
+}
+
+// -------------------------------- website parse ------------------------------
+
 function get_book_description(name) {
     return new Promise(resolve => {
         for (var item1 in data.update_list[name].source) {
             if (data.book_source[item1].enable) {
                 var url = data.book_source[item1].match_rule.book_description.url.format({ book_id: data.update_list[name].source[item1] })
-                request({ url: url, method: "GET" }, (err, res, body) => {
+                request({ url: url, method: data.book_source[item1].match_rule.book_description.method }, (err, res, body) => {
                     if (err) throw err;
-                    var doc = new xmldom.DOMParser({
-                        errorHandler: {
-                            warning(w) { },
-                            error(e) { },
-                            fatalError(fe) { }
-                        }
-                    }).parseFromString(body)
-                    var result = { name: name, url: data.book_source[item1].url }
-                    var temp1 = data.book_source[item1].match_rule.book_description.rule
-                    for (var i in temp1) {
-                        if (temp1[i]) {
-                            try {
-                                var temp2 = xpath.select(temp1[i], doc)
-                                result[i] = temp2[0].nodeValue
-                            }
-                            catch (err) {
-                                if (err.message == "XPath parse error") {
-                                    console.error('XPath语法错误: \n' + err.stack)
-                                    result[i] = "书源错误"
-                                }
-                                else {
-                                    throw err;
-                                }
-                            }
-                        }
-                        else {
-                            result[i] = ""
-                        }
-                    }
+                    var dom = dom_parser.parseFromString(body)
+                    var result = { name: name, url: data.book_source[item1].url, ...get_node_by_xpaths(data.book_source[item1].match_rule.book_description.rule, dom) }
+
                     resolve(result)
                 })
                 break
@@ -90,13 +129,25 @@ function get_book_description(name) {
     })
 }
 
+function get_book_contents(name) {
+    return new Promise(resolve => {
+        for (var item1 in data.update_list[name].source) {
+            if (data.book_source[item1].enable) {
+                var url = data.book_source[item1].match_rule.contents.url.format({ book_id: data.update_list[name].source[item1] })
+                request({ url: url, method: data.book_source[item1].match_rule.contents.method }, (err, res, body) => {
+                    if (err) throw err;
+                    var dom = dom_parser.parseFromString(body)
+                    var temp1 = get_nodes_by_xpath(data.book_source[item1].match_rule.contents.rule.list, dom)
 
-// 获取小说信息
-fs.readFile(`${__dirname}\\novel_manager.json`, (err, raw) => {
-    if (err) throw err;
-    global.data = JSON.parse(raw);
-    console.log('loaded file')
-})
+                    var result = { name: name, url: data.book_source[item1].url, contents: null }
+                })
+                break
+            }
+        }
+    })
+}
+
+// -------------------------------- application main ------------------------------
 
 function createWindow() {
     if (global.win) { throw new WindowsEsistError("Main window is esist."); };
@@ -153,4 +204,8 @@ electron.ipcMain.handle('get_nm_data', async (event) => {
 
 electron.ipcMain.handle('get_book_description', async (event, name) => {
     return await get_book_description(name)
+})
+
+electron.ipcMain.handle('get_book_contents', async (event, name) => {
+    return await get_book_contents(name)
 })
