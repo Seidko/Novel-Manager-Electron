@@ -3,6 +3,7 @@ body {
     margin     : 0px;
     overflow   : hidden;
     user-select: none;
+    -webkit-user-select: none;
 }
 
 
@@ -66,8 +67,22 @@ div#mainpage {
     background: #dfdfdf
 }
 
+.unselectable:hover {
+    background   : #FFF
+}
+
+
+
+.loading_list_item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 div.loading {
     margin: 5px 0px 0px 0px;
+    height: 0px;
+    width: 0px;
     animation: loading1 0.8s cubic-bezier(0.54, 0.21, 0.41, 0.8) infinite;
     border-radius: 20px;
     padding: 15px;
@@ -77,12 +92,17 @@ div.loading {
     
 }
 
+
 @keyframes loading1 {
     to {
         transform: rotate(360deg);
     }
 }
 
+.book_description_cover {
+    width: 45.75px;
+    height:61px;
+}
 /* -----------------------------navbar-------------------------------- */
 
 nav#navbar {

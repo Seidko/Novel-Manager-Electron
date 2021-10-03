@@ -12,6 +12,7 @@
                 electron.win.reload_html()
             }
         }, true);
+
     </script>
     <link rel="stylesheet" type="text/css" href="./css/style.css" />
 
@@ -88,14 +89,21 @@
                 <div id='fast-update-title-item' class='mainpage-list-title'>
                     &#9193;快捷更新
                 </div>
-                <div v-if="!update_list.length" id="fast-update-container-alt" class="selectable-list-container-alt">
-                    <div class="loading"></div>
-                    <div style="font-size: 17px;font-weight: 700;color: #272727; text-shadow: 2px 2px 2px #b3b3b3;">加载中...</div>
-                </div>
-                <div v-if="update_list.length" id="fast-update-container" class='selectable-list-container'>
-                    <div v-for="(item, index) in update_list" :id="'fast-update-item-' + index"
-                        class="selectable-list-item clickable">
-                        {{item}}
+
+                <div id="fast-update-container" class='selectable-list-container'>
+                    <div v-for="(value, key) in nm_data.update_list" :id="'fast-update-item-' + key"
+                        class="selectable-list-item" :class="{'clickable': book_description[key], 'unselectable': !book_description[key]}">
+                        <div v-if="!book_description[key]" class="loading_list_item">
+                            <div class="loading"></div>
+                            <div
+                                style="font-size: 17px;font-weight: 700;color: #272727; text-shadow: 2px 2px 2px #b3b3b3;">
+                                加载中...</div>
+                        </div>
+                        <div v-if="book_description[key]" class="book_description">
+                            <img
+                                :src="book_description[key]['cover'].includes('http') ? book_description[key]['cover'] : book_description[key]['url'] + book_description[key]['cover']" onerror="this.src='./res/default_book_cover.png'" class="book_description_cover" />
+                            <span class="book_description_name">{{book_description[key]["name"]}}</span>
+                        </div>
                     </div>
                     <p v-for="item in [1, 2, 3, 4, 5]"
                         style="width: 250px; flex-grow: 1; margin: 0px 18px; height: 0px;"></p>
@@ -123,7 +131,8 @@
                         noad: false,
                         settings: false
                     },
-                    update_list: [],
+                    nm_data: {},
+                    book_description: {}
                 }
             },
             methods: {
@@ -137,9 +146,17 @@
                     }
                     this.pagestatus[pageid] = true
                 }
-            }
+            },
         })
         const mw = app.mount('#main-wrapper')
+        electron.data.get_nm_data().then(d => {
+            mw.$data.nm_data = d
+            for (i in d.update_list) {
+                electron.data.get_book_description(i).then(d => {
+                    mw.$data.book_description[d["name"]] = d
+                })
+            }
+        })
     </script>
 </body>
 

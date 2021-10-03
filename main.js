@@ -1,13 +1,98 @@
 "use strict";
 const electron = require('electron')
 const fs = require('fs')
+const request = require('request')
+const xpath = require('xpath')
+const xmldom = require('xmldom')
+
 // const path = require('path')
+
+
+// 返回延迟的数据，异步
+async function returnDataWithDelay(data, delay) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(data)
+        }, delay);
+    })
+}
 
 class WindowsEsistError extends Error {
     constructor(msg) {
         super(msg)
     }
 }
+
+String.prototype.format = function (args) {
+    var result = this;
+    if (arguments.length > 0) {
+        if (arguments.length == 1 && typeof (args) == "object") {
+            for (var key in args) {
+                if (args[key] != undefined) {
+                    var reg = new RegExp("({" + key + "})", "g");
+                    result = result.replace(reg, args[key]);
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < arguments.length; i++) {
+                if (arguments[i] != undefined) {
+                    var reg = new RegExp("({)" + i + "(})", "g");
+                    result = result.replace(reg, arguments[i]);
+                }
+            }
+        }
+    }
+    return result;
+}
+
+function get_book_description(name) {
+    return new Promise(resolve => {
+        for (var item1 in data.update_list[name].source) {
+            if (data.book_source[item1].enable) {
+                var url = data.book_source[item1].match_rule.book_description.url.format({ book_id: data.update_list[name].source[item1] })
+                request({ url: url, method: "GET" }, (err, res, body) => {
+                    if (err) throw err;
+                    var doc = new xmldom.DOMParser({
+                        errorHandler: {
+                            warning(w) { },
+                            error(e) { },
+                            fatalError(fe) { }
+                        }
+                    }).parseFromString(body)
+                    var result = {name: name, url: data.book_source[item1].url}
+                    var temp = data.book_source[item1].match_rule.book_description.rule
+                    for (var i in temp){
+                        if (temp[i]){
+                            try {
+                            result[i] = xpath.select(temp[i], doc)[0].value
+                            }
+                            catch (err) {
+                                if (err.message == "XPath parse error"){
+                                    console.error('XPath语法错误')
+                                    result[i] = "书源错误"
+                                }
+                            }
+                        }
+                        else{
+                            result[i] = ""
+                        }
+                    }
+                    resolve(result)
+                })
+                break
+            }
+        }
+    })
+}
+
+
+// 获取小说信息
+fs.readFile(`${__dirname}\\novel_manager.json`, (err, raw) => {
+    if (err) throw err;
+    global.data = JSON.parse(raw);
+    console.log('loaded file')
+})
 
 function createWindow() {
     if (global.win) { throw new WindowsEsistError("Main window is esist."); };
@@ -22,7 +107,7 @@ function createWindow() {
         // frame: false,
         titleBarStyle: 'hidden',
         webPreferences: {
-            devTools: true,
+            // devTools: true,
             nativeWindowOpen: true,
             // contextIsolation: false, // 取消注释以后能够在渲染器进程中使用nodejs api
             nodeIntegration: true,
@@ -44,6 +129,8 @@ electron.app.on('window-all-closed', () => {
     electron.app.quit();
 });
 
+// ----------------------- IPC Event Handle -------------------------------
+
 electron.ipcMain.on('close_win', () => {
     electron.app.quit();
 });
@@ -56,5 +143,10 @@ electron.ipcMain.on('reload_html', () => {
     win.loadFile('nmelec.html');
 });
 
+electron.ipcMain.handle('get_nm_data', async (event) => {
+    return data
+})
 
-var a = "aaaaaaa"
+electron.ipcMain.handle('get_book_description', async (event, name) => {
+    return await get_book_description(name)
+})

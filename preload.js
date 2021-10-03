@@ -15,7 +15,17 @@ contextBridge.exposeInMainWorld(
         reload_html() {
             ipcRenderer.send('reload_html')
         }
-    }
+    },
+    data: {
+        async get_nm_data() {
+            return await ipcRenderer.invoke('get_nm_data').then(d => { return d })
+        },
+        async get_book_description(name) {
+            return await ipcRenderer.invoke('get_book_description', name).then(d => {return d})
+        }
+    },
+
 })
 // })
 console.log('preload file load success')
+
