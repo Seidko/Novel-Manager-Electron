@@ -20,15 +20,12 @@ export default {
       // for (const i in this.$el) {
       //   console.log(i)
       // }
-      let temp1 = this.$el.getElementsByClassName('image_link')
-      console.log(temp1)
-      temp1 = temp1[Math.floor(Math.random() * temp1.length)].currentSrc
-      console.log(temp1)
-      this.$data.BackgroundImage = "url('" + temp1 + "')"
-      console.log(this.$data.BackgroundImage)
+      const temp1 = this.$el.getElementsByClassName('image_link')
+      this.$data.BackgroundImage = `url(${temp1[Math.floor(Math.random() * temp1.length)].src})`
+      console.log(electron.afunc())
     }, 1)
     return {
-      BackgroundImage: null
+      BackgroundImage: 'url()'
     }
   },
   methods: {}
