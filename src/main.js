@@ -4,4 +4,4 @@ import router from './router'
 import store from './store'
 
 const MainApp = createApp(App)
-MainApp.use(store).use(router).mount('#main-warp')
+MainApp.use(store).use(router).mount('#app')
