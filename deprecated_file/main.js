@@ -1,18 +1,13 @@
-"use strict"
-const electron = require("electron")
-
+'use strict'
+const electron = require('electron')
 
 // utils
-class WindowsExistError extends Error {
-  constructor(msg) {
-    super(msg)
-  }
-}
+class WindowsExistError extends Error {}
 
-var win = undefined
+var win = {}
 
-function CreateWindow() {
-  if (win) { throw new WindowsExistError("Main window is esist.") }
+function CreateWindow () {
+  if (win instanceof electron.BrowserWindow) { throw new WindowsExistError('Main window is esist.') }
   win = new electron.BrowserWindow({
     width: 890,
     height: 570,
@@ -30,18 +25,16 @@ function CreateWindow() {
       nodeIntegration: true,
       // sandbox: true
       preload: `${__dirname}\\preload.js`
-
-    },
-
-  });
-  win.loadFile('dist\\index.html');
+    }
+  })
+  win.loadFile('dist\\index.html')
 }
 
 electron.app.on('ready', () => {
-  CreateWindow();
-});
+  CreateWindow()
+})
 
 electron.app.on('window-all-closed', () => {
-  console.log('app quit');
-  electron.app.quit();
-});
+  console.log('app quit')
+  electron.app.quit()
+})

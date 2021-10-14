@@ -22,7 +22,7 @@ export default {
       // }
       const temp1 = this.$el.getElementsByClassName('image_link')
       this.$data.BackgroundImage = `url(${temp1[Math.floor(Math.random() * temp1.length)].src})`
-      console.log(electron.afunc())
+      console.log(window.electron.afunc())
     }, 1)
     return {
       BackgroundImage: 'url()'
@@ -48,9 +48,7 @@ export default {
 }
 
 .image_link {
-  visibility: hidden;
-  height: 0;
-  width: 0;
+  display: none;
 }
 
 </style>
