@@ -7,10 +7,27 @@ module.exports = {
         win: {
           icon: "public/favicon.ico",
           target: [
-            "portable"
+            {
+              "target": "nsis",
+              "arch": [
+                "x64",
+                "ia32"
+              ]
+            },
+            {
+              "target": "portable",
+              "arch": [
+                "x64",
+                "ia32"
+              ]
+            }
           ]
         }
       },
+      nsis: {
+        oneClick: false,
+        allowToChangeInstallationDirectory: true
+      }
     }
   }
 }
