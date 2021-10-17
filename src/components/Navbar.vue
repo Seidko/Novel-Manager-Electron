@@ -5,7 +5,7 @@
       Novel Manager
     </div>
     <div id="navbar-button">
-      <span id="navbar-button-min" @click="close_window" class="clickable">&nbsp;&#8212;</span>
+      <span id="navbar-button-min" @click="close_window" class="clickable">&#8212;</span>
       <span id="navbar-button-close" @click="minimize_window" class="clickable">&#10006;</span>
     </div>
   </nav>
@@ -59,8 +59,12 @@ export default {
   -webkit-app-region: no-drag;
 }
 
+#navbar-button-close:hover, #navbar-button-min:hover {
+  background: #00000021;
+}
+
 #navbar-button-min {
-  padding: 8px 6px;
+  padding: 8px 11px;
   font-size: 18px;
 }
 

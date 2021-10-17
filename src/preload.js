@@ -6,3 +6,5 @@ require('electron').contextBridge.exposeInMainWorld(
     }
   }
 )
+
+console.log('Load preload file successfully')

@@ -32,19 +32,19 @@ async function createWindow () {
       // contextIsolation: true, // 取消注释以后能够在渲染器进程中使用nodejs api
       // nodeIntegration: true,
       // sandbox: true
-      preload: `preload.js`
+      preload: __dirname + '\\preload.js'
     }
   })
-
-  console.log(process.env.WEBPACK_DEV_SERVER_URL)
+  console.log(__dirname)
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
     if (!process.env.IS_TEST) win.webContents.openDevTools()
-  } else {
+  }
+  else {
     createProtocol('app')
     // Load the index.html when not in development
-    win.loadURL('app://./index.html')
+    await win.loadURL('app://./index.html')
   }
 }
 
@@ -86,7 +86,8 @@ if (isDevelopment) {
         app.quit()
       }
     })
-  } else {
+  }
+  else {
     process.on('SIGTERM', () => {
       app.quit()
     })
