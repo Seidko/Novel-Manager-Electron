@@ -10,6 +10,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+#main-page {
+  grid-area: main-page;
+}
 
 </style>

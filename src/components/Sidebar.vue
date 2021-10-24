@@ -47,7 +47,7 @@ export default {
 #sidebar {
   grid-area: sidebar;
   background: #ffffff56;
-  height: calc(100vh - 40px);
+  //height: calc(100vh - 40px);
 }
 
 #sidebar-list {
