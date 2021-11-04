@@ -20,14 +20,13 @@ export default {
   data () {
     window.vueAPI = this
     setTimeout(() => {
+      // TODO: 将要替换为vuex结构
       for (const i in this.$el.getElementsByClassName('image_link')) {
-        this.BackgroundImageList.push(i.src)
+        const temp1 = this.$el.getElementsByClassName('image_link')
+        this.BackgroundImageList.push(temp1[i].src)
       }
       this.BackgroundImage = `url(${this.BackgroundImageList[Math.floor(Math.random() * this.BackgroundImageList.length)]})`
-      this.TemporaryValue.BackgroundUpdater = setInterval(() => {
-        this.BackgroundImage = `url(${this.BackgroundImageList[Math.floor(Math.random() * this.BackgroundImageList.length)]})`
-      }, this.BackgroundUpdateTime)
-    }, 1)
+    }, 10)
     return {
       BackgroundImage: 'url()',
       BackgroundImageList: [],
@@ -38,20 +37,7 @@ export default {
     }
   },
   methods: {},
-  computed: {
-    BackgroundUpdateTime: {
-      get () {
-        return this.TemporaryValue.BackgroundUpdateTime
-      },
-      set (newVar) {
-        this.TemporaryValue.BackgroundUpdateTime = newVar
-        clearInterval(this.TemporaryValue.BackgroundUpdater)
-        this.TemporaryValue.BackgroundUpdater = setInterval(() => {
-          this.BackgroundImage = `url(${this.BackgroundImageList[Math.floor(Math.random() * this.BackgroundImageList.length)]})`
-        }, newVar)
-      }
-    }
-  }
+  computed: {}
 }
 </script>
 
