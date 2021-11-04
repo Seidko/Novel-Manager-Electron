@@ -1,5 +1,5 @@
 'use strict'
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, session } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 
@@ -32,7 +32,7 @@ async function createWindow () {
       // contextIsolation: true, // 取消注释以后能够在渲染器进程中使用nodejs api
       // nodeIntegration: true,
       // sandbox: true
-      preload: __dirname + '\\preload.js'
+      preload: `${__dirname}\\preload.js`
     }
   })
   console.log(__dirname)
@@ -40,8 +40,7 @@ async function createWindow () {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
     if (!process.env.IS_TEST) win.webContents.openDevTools()
-  }
-  else {
+  } else {
     createProtocol('app')
     // Load the index.html when not in development
     await win.loadURL('app://./index.html')
@@ -75,7 +74,8 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }
-  createWindow()
+  await createWindow()
+  await session.loadExtension(`${__dirname}vue-devtools`)
 })
 
 // Exit cleanly on request from parent process in development mode.
@@ -86,8 +86,7 @@ if (isDevelopment) {
         app.quit()
       }
     })
-  }
-  else {
+  } else {
     process.on('SIGTERM', () => {
       app.quit()
     })
