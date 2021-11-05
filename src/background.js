@@ -14,7 +14,7 @@ console.log(process.env)
 if (isDevelopment) {
   fs.open(path.join(path.dirname(__dirname), 'data', 'book_source.json'), 'a+', (err, fd) => {
     if (err) throw err
-    const bookSourceFile = fd
+    global.bookSourceFile = fd
   })
 }
 
