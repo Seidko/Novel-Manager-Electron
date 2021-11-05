@@ -1,9 +1,22 @@
 'use strict'
-import { app, protocol, BrowserWindow, session } from 'electron'
+import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import * as fs from 'fs'
+import * as path from 'path'
+// import * as xpath from 'xpath'
+// import { DOMParser } from "xmldom";
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
+
+console.log(process.env)
+
+if (isDevelopment) {
+  fs.open(path.join(path.dirname(__dirname), 'data', 'book_source.json'), 'a+', (err, fd) => {
+    if (err) throw err
+    const bookSourceFile = fd
+  })
+}
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -32,10 +45,9 @@ async function createWindow () {
       // contextIsolation: true, // 取消注释以后能够在渲染器进程中使用nodejs api
       // nodeIntegration: true,
       // sandbox: true
-      preload: `${__dirname}\\preload.js`
+      preload: path.join(__dirname, 'preload.js')
     }
   })
-  console.log(__dirname)
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
@@ -49,22 +61,11 @@ async function createWindow () {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
-app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) createWindow()
-})
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
@@ -75,7 +76,6 @@ app.on('ready', async () => {
     }
   }
   await createWindow()
-  await session.loadExtension(`${__dirname}vue-devtools`)
 })
 
 // Exit cleanly on request from parent process in development mode.
