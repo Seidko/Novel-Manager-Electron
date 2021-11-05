@@ -8,22 +8,26 @@ module.exports = {
         win: {
           icon: 'public/favicon.ico',
           target: [
-            {
-              target: 'nsis',
-              arch: [
-                'x64',
-                'ia32'
-              ]
-            },
+            // {
+            //   target: 'nsis',
+            //   arch: [
+            //     'x64',
+            //     'ia32'
+            //   ]
+            // },
             {
               target: 'portable',
               arch: [
-                'x64',
-                'ia32'
+                'x64'//,
+                // 'ia32'
               ]
             }
           ]
-        }
+        },
+        files: [
+          '**/*'
+        ],
+        extends: null
       },
       nsis: {
         oneClick: false,
