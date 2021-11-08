@@ -2,7 +2,7 @@
 import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
-import * as fs from 'fs'
+// import * as fs from 'fs'
 import * as path from 'path'
 // import * as xpath from 'xpath'
 // import { DOMParser } from "xmldom";
@@ -10,13 +10,10 @@ import * as path from 'path'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 console.log(process.env)
-
-if (isDevelopment) {
-  fs.open(path.join(path.dirname(__dirname), 'data', 'book_source.json'), 'a+', (err, fd) => {
-    if (err) throw err
-    global.bookSourceFile = fd
-  })
-}
+//
+// async function loadProfile () {
+//
+// }
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
