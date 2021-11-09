@@ -1,18 +1,31 @@
 exports.Locks = class Locks {
   #_locked
-  get locked () {
-    return this.#_locked
-  }
-
-  set locked (value) {
-    this.#_locked = value
-  }
+  #_registry
 
   constructor () {
-    this.locked = false
+    this.#_locked = false
+    this.#_registry = []
   }
 
-  acquire (block, timeout) {}
+  acquire () {
+    if (this.#_locked) {
+      return new Promise((resolve) => {
+        this.#_registry.push(() => {
+          resolve(null)
+          this.#_locked = true
+        })
+      })
+    } else {
+      this.#_locked = true
+      return Promise.resolve(null)
+    }
+  }
 
-  release () {}
+  release () {
+    this.#_locked = false
+    const TEMP1 = this.#_registry.pop()
+    if (typeof TEMP1 === 'function') {
+      TEMP1()
+    }
+  }
 }
