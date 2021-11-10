@@ -3,39 +3,47 @@
 *  Included Lock, Event, Events, Condition, Barrier and BoundedSemaphore
 */
 
-// noinspection JSUnusedGlobalSymbols
-const async_hooks = require('async_hooks')
+import { executionAsyncId } from 'async_hooks'
 
-exports.Lock = class Lock {
+// noinspection JSUnusedGlobalSymbols
+class Lock {
   #_locked
   #_registry
+  #_registeredAsyncID
 
   constructor () {
     this.#_locked = false
     this.#_registry = []
+    this.#_registeredAsyncID = undefined
   }
 
   acquire () {
-    // TODO: 用async_hooks.triggerAsyncId()实现RLOCK
-    console.log('id: ' + async_hooks.triggerAsyncId())
+    console.log(executionAsyncId())
     if (this.#_locked) {
       return new Promise((resolve) => {
         this.#_registry.push(() => {
+          this.#_registeredAsyncID = executionAsyncId()
           resolve(null)
           this.#_locked = true
         })
       })
     } else {
       this.#_locked = true
+      this.#_registeredAsyncID = executionAsyncId()
       return Promise.resolve(null)
     }
   }
 
   release () {
-    this.#_locked = false
-    const TEMP1 = this.#_registry.pop()
-    if (typeof TEMP1 === 'function') {
-      TEMP1()
+    console.log(executionAsyncId())
+    if (this.#_registeredAsyncID === executionAsyncId()) {
+      this.#_locked = false
+      const TEMP1 = this.#_registry.pop()
+      if (typeof TEMP1 === 'function') {
+        TEMP1()
+      }
+    } else {
+      // throw new Error('Cannot release by others async process.')
     }
   }
 
@@ -44,7 +52,30 @@ exports.Lock = class Lock {
   }
 }
 
-exports.Event = class Event {
+class RLock {
+  #_lockCounter
+  #_registry
+  #_registeredAsyncID
+
+  // constructor () {
+  //   this.#_lockCounter = 0
+  //   this.#_registry = []
+  //   this.#_registeredAsyncID = undefined
+  // }
+  //
+  // acquire () {
+  //   if (this.#_lockCounter >= 1) {
+  //     if (this.#_registeredAsyncID === executionAsyncId()) {
+  //       this.#_lockCounter
+  //       return Promise.resolve(null)
+  //     } else {
+  //       return
+  //     }
+  //   }
+  // }
+}
+
+class Event {
   #_event
   #_registry
 
@@ -57,7 +88,32 @@ exports.Event = class Event {
     if (this.#_event) {
       return Promise.resolve(null)
     } else {
-      return Promise
+      return new Promise((resolve) => {
+        this.#_registry.push(() => {
+          resolve(null)
+        })
+      })
     }
   }
+
+  set () {
+    this.#_event = true
+    for (const i in this.#_registry) {
+      if (typeof this.#_registry[i] === 'function') {
+        this.#_registry[i]()
+      }
+    }
+    this.#_registry = []
+  }
+
+  clear () {
+    this.#_event = false
+  }
+
+  event () {
+    return this.#_event
+  }
 }
+
+export { Lock, Event, RLock }
+export default { Lock, Event, RLock }
