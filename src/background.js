@@ -2,7 +2,7 @@
 import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
-// import * as fs from 'fs'
+import * as fs from 'fs/promises'
 import * as path from 'path'
 // import * as xpath from 'xpath'
 // import { DOMParser } from "xmldom";
@@ -10,10 +10,25 @@ import * as path from 'path'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 console.log(process.env)
-//
-// async function loadProfile () {
-//
-// }
+
+let bookSourceProfiles
+let bookSourceObject
+let serializingNovelProfiles
+let serializingNovelObject
+let win
+
+(async function () {
+  if (isDevelopment) {
+    bookSourceProfiles = await fs.open('../data/books-source.json', 'a+')
+    serializingNovelProfiles = await fs.open('../data/serializing-books.json', 'a+')
+  } else {
+    bookSourceProfiles = await fs.open('./data/books-source.json', 'a+')
+    serializingNovelProfiles = await fs.open('./data/serializing-books.json', 'a+')
+  }
+  bookSourceObject = await fs.readFile(bookSourceProfiles, { encoding: 'utf-8' }).then(result => JSON.parse(result))
+  serializingNovelObject = await fs.readFile(serializingNovelProfiles, { encoding: 'utf-8' }).then(result => JSON.parse(result))
+  console.log(bookSourceObject, serializingNovelObject)
+})()
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -22,7 +37,7 @@ protocol.registerSchemesAsPrivileged([
 
 async function createWindow () {
   // Create the browser window.
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 890,
     height: 570,
     minWidth: 890,

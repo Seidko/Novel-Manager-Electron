@@ -4,19 +4,19 @@
     <img src="./assets/RE4wE9C.png" alt="" class="image_link"/>
     <img src="./assets/RE4wqHL.png" alt="" class="image_link"/>
     <Navbar></Navbar>
-    <Sidebar></Sidebar>
+    <SidebarMain></SidebarMain>
     <MainPage></MainPage>
 
   </div>
 </template>
 <script>
 import Navbar from './components/Navbar'
-import Sidebar from './components/Sidebar'
+import SidebarMain from './components/Sidebar/Main'
 import MainPage from './components/MainPage'
 // import { DebuggerOptions, Ref } from 'vue'
 
 export default {
-  components: { MainPage, Sidebar, Navbar },
+  components: { MainPage, SidebarMain, Navbar },
   data () {
     window.vueAPI = this
     setTimeout(() => {
