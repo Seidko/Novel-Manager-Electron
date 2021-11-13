@@ -6,7 +6,6 @@
     <Navbar></Navbar>
     <SidebarMain></SidebarMain>
     <MainPage></MainPage>
-
   </div>
 </template>
 <script>

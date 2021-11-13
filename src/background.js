@@ -4,8 +4,8 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import * as fs from 'fs/promises'
 import * as path from 'path'
-// import * as xpath from 'xpath'
-// import { DOMParser } from "xmldom";
+import * as http from 'http'
+import { URL } from 'url'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -103,4 +103,22 @@ if (isDevelopment) {
       app.quit()
     })
   }
+}
+
+function getBookContents (url, bookSource) {
+  const urlParsed = new URL(url)
+  return new Promise((resolve) => {
+    const request = http.request({
+      protocol: urlParsed.protocol,
+      hostname: urlParsed.hostname,
+      method: 'GET',
+      path: urlParsed.pathname
+    }, res => {
+      res.on('error', err => console.error(err))
+      res.on('data', data => {
+
+      })
+    })
+    request.on('error', err => console.error(err))
+  })
 }
