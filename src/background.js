@@ -4,12 +4,10 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import * as fs from 'fs/promises'
 import * as path from 'path'
-import * as http from 'http'
-import { URL } from 'url'
+// import got from 'got'
+import * as worker from 'worker_threads'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
-
-console.log(process.env)
 
 let bookSourceProfiles
 let bookSourceObject
@@ -105,20 +103,40 @@ if (isDevelopment) {
   }
 }
 
-function getBookContents (url, bookSource) {
-  const urlParsed = new URL(url)
-  return new Promise((resolve) => {
-    const request = http.request({
-      protocol: urlParsed.protocol,
-      hostname: urlParsed.hostname,
-      method: 'GET',
-      path: urlParsed.pathname
-    }, res => {
-      res.on('error', err => console.error(err))
-      res.on('data', data => {
+// async function getBookContents (url, bookSource) {
+//   bookSource = bookSource.contents
+//   const temp1 = got(url, {
+//     headers: {
+//       'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44'
+//     },
+//     method: bookSource.method,
+//     encoding: bookSource.encoding
+//   })
+//   let temp2
+//   const temp3 = []
+//   switch (bookSource.content) {
+//     case 'text/html':
+//       temp2 = await temp1.text()
+//       temp2 = temp2.match(new RegExp(bookSource.rules.list, 'gsu'))
+//       for (const i in temp2) {
+//         temp3.push({
+//           url: i.match(new RegExp(bookSource.rules.url, 'su')),
+//           name: i.match(new RegExp(bookSource.rules.name, 'su'))
+//         })
+//       }
+//       break
+//     case 'application/json':
+//       temp2 = await temp1.json()
+//       temp3.push({
+//         url: temp1
+//       })
+//       break
+//     default :
+//       throw new Error('Unsupported content')
+//   }
+//   return temp3
+// }
 
-      })
-    })
-    request.on('error', err => console.error(err))
-  })
-}
+const worker1 = new worker.Worker(path.join(__dirname, 'preload2.js'))
+
+worker1.postMessage('aaa')

@@ -3,7 +3,10 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       nodeIntegration: false,
-      preload: { preload: './src/preload.js' },
+      preload: {
+        preload: './src/preload.js',
+        preload2: './src/work.js'
+      },
       builderOptions: {
         win: {
           icon: 'public/favicon.ico',
