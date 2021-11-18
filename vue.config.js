@@ -4,8 +4,7 @@ module.exports = {
     electronBuilder: {
       nodeIntegration: false,
       preload: {
-        preload: './src/preload.js',
-        preload2: './src/work.js'
+        preload: './src/preload.js'
       },
       builderOptions: {
         win: {
@@ -18,15 +17,30 @@ module.exports = {
             //     'ia32'
             //   ]
             // },
+            // {
+            //   target: 'portable',
+            //   arch: [
+            //     'x64',
+            //     'ia32'
+            //   ]
+            // }
             {
-              target: 'portable',
+              target: '7z',
               arch: [
-                'x64'//,
-                // 'ia32'
+                'x64'
               ]
             }
           ]
         },
+        asarUnpack: [
+          './node_modules/**/*'
+        ],
+        extraResources: [
+          {
+            from: './src/work.js',
+            to: 'static/worker/work.js'
+          }
+        ],
         files: [
           '**/*'
         ],
