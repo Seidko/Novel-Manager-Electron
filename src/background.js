@@ -4,8 +4,8 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import * as fs from 'fs/promises'
 import * as path from 'path'
-// import got from 'got'
-import * as worker from 'worker_threads'
+import got from 'got'
+// import * as worker from 'worker_threads'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -103,6 +103,7 @@ if (isDevelopment) {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 async function getBookContents (url, bookSource) {
   bookSource = bookSource.contents
   const temp1 = got(url, {
@@ -137,6 +138,6 @@ async function getBookContents (url, bookSource) {
   return temp3
 }
 
-const worker1 = new worker.Worker(isDevelopment ? path.join(__dirname, 'work.js') : path.join(process.resourcesPath, 'static/worker/work.js'))
-
-worker1.postMessage('aaa')
+// const worker1 = new worker.Worker(isDevelopment ? path.join(__dirname, 'work.js') : path.join(process.resourcesPath, 'static/worker/work.js'))
+//
+// worker1.postMessage('aaa')
