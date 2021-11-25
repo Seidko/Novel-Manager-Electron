@@ -35,6 +35,16 @@
 
     </div>
   </div>
+  <script>
+    setTimeout(() => {
+      // TODO: 将要替换为vuex结构
+      for (const i in this.$el.getElementsByClassName('image_link')) {
+        const temp1 = this.$el.getElementsByClassName('image_link')
+        this.BackgroundImageList.push(temp1[i].src)
+      }
+      this.BackgroundImage = `url(${this.BackgroundImageList[Math.floor(Math.random() * this.BackgroundImageList.length)]})`
+    }, 10)
+  </script>
 </template>
 <script>
 import Item from './components/Sidebar/Item'
@@ -44,14 +54,6 @@ export default {
   components: { Item, Paragraph },
   data () {
     window.vueAPI = this
-    setTimeout(() => {
-      // TODO: 将要替换为vuex结构
-      for (const i in this.$el.getElementsByClassName('image_link')) {
-        const temp1 = this.$el.getElementsByClassName('image_link')
-        this.BackgroundImageList.push(temp1[i].src)
-      }
-      this.BackgroundImage = `url(${this.BackgroundImageList[Math.floor(Math.random() * this.BackgroundImageList.length)]})`
-    }, 10)
     return {
       BackgroundImage: 'url()',
       BackgroundImageList: [],
