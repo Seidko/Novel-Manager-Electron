@@ -1,12 +1,12 @@
 <template>
-  <div id="main-warp" :style="{ backgroundImage: BackgroundImage }">
-    <img src="./assets/RE4pdF1.png" alt="" class="image_link"/>
-    <img src="./assets/RE4wE9C.png" alt="" class="image_link"/>
-    <img src="./assets/RE4wqHL.png" alt="" class="image_link"/>
+  <div id="main-warp">
+<!--    <img src="./assets/RE4pdF1.png" alt="" class="image_link"/>-->
+<!--    <img src="./assets/RE4wE9C.png" alt="" class="image_link"/>-->
+<!--    <img src="./assets/RE4wqHL.png" alt="" class="image_link"/>-->
 
     <nav id="navbar">
       <div id="navbar-logo">
-        <img src="./assets/favicon.png" alt="icon" id="navbar-logo-icon">
+        <img src="./assets/icon.png" alt="icon" id="navbar-logo-icon">
         Novel Manager
       </div>
       <div id="navbar-button">
@@ -68,6 +68,7 @@ export default {
   grid-template-columns: 200px 1fr;
   grid-template-rows: 40px calc(100vh - 40px);
   transition: background 2s;
+  background-image: url("./assets/RE4pdF1.png");
 }
 
 #navbar {

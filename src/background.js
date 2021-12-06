@@ -17,13 +17,17 @@ let win
 
 (async function () {
   if (isDevelopment) {
-    bookSourceProfiles = await fs.open('../data/books-source.json', 'a+')
-    serializingNovelProfiles = await fs.open('../data/serializing-books.json', 'a+')
+    bookSourceProfiles = await fs.open('./data/books-source.json', 'a+')
+    serializingNovelProfiles = await fs.open('./data/serializing-books.json', 'a+')
   } else {
     bookSourceProfiles = await fs.open('./data/books-source.json', 'a+')
     serializingNovelProfiles = await fs.open('./data/serializing-books.json', 'a+')
   }
-  bookSourceObject = await fs.readFile(bookSourceProfiles, { encoding: 'utf-8' }).then(result => JSON.parse(result))
+  try {
+    bookSourceObject = await fs.readFile(bookSourceProfiles, { encoding: 'utf-8' }).then(result => JSON.parse(result))
+  } catch {
+    console.log('---------\nFile')
+  }
   serializingNovelObject = await fs.readFile(serializingNovelProfiles, { encoding: 'utf-8' }).then(result => JSON.parse(result))
   console.log(bookSourceObject, serializingNovelObject)
 })()
