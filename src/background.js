@@ -1,5 +1,5 @@
 'use strict'
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import * as fs from 'fs/promises'
@@ -9,26 +9,43 @@ import got from 'got'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-let bookSourceProfiles
+let bookSourceProfile
 let bookSourceObject
-let serializingNovelProfiles
+let serializingNovelProfile
 let serializingNovelObject
 let win
 
-(async function () {
+const fileInitAsync = (async function () {
   if (isDevelopment) {
-    bookSourceProfiles = await fs.open('./data/books-source.json', 'a+')
-    serializingNovelProfiles = await fs.open('./data/serializing-books.json', 'a+')
+    bookSourceProfile = await fs.open('./data/books-source.json', 'a+')
+    serializingNovelProfile = await fs.open('./data/serializing-books.json', 'a+')
   } else {
-    bookSourceProfiles = await fs.open('./data/books-source.json', 'a+')
-    serializingNovelProfiles = await fs.open('./data/serializing-books.json', 'a+')
+    bookSourceProfile = await fs.open('./data/books-source.json', 'a+')
+    serializingNovelProfile = await fs.open('./data/serializing-books.json', 'a+')
+  }
+  const temp1 = await bookSourceProfile.readFile({ encoding: 'utf8' })
+  const temp2 = await serializingNovelProfile.readFile({ encoding: 'utf-8' })
+
+  try {
+    bookSourceObject = JSON.parse(temp1)
+  } catch {
+    if (!temp1) {
+      await bookSourceProfile.writeFile('{\n\n}', { encoding: 'utf8' })
+    } else {
+      console.log('---------\n\nIs book source profile SYNTAX ERROR?! Please check. \n\n---------')
+    }
+    bookSourceObject = {}
   }
   try {
-    bookSourceObject = await fs.readFile(bookSourceProfiles, { encoding: 'utf-8' }).then(result => JSON.parse(result))
+    serializingNovelObject = JSON.parse(temp2)
   } catch {
-    console.log('---------\nFile')
+    if (!temp2) {
+      await serializingNovelProfile.writeFile('[\n\n]', { encoding: 'utf8' })
+    } else {
+      console.log('---------\n\nIs serializing novel profile SYNTAX ERROR?! Please check. \n\n---------')
+    }
+    serializingNovelObject = []
   }
-  serializingNovelObject = await fs.readFile(serializingNovelProfiles, { encoding: 'utf-8' }).then(result => JSON.parse(result))
   console.log(bookSourceObject, serializingNovelObject)
 })()
 
@@ -108,7 +125,7 @@ if (isDevelopment) {
 }
 
 // eslint-disable-next-line no-unused-vars
-async function getBookContents (url, bookSource) {
+async function getBookDetail (url, bookSource) {
   bookSource = bookSource.contents
   const temp1 = got(url, {
     headers: {
@@ -145,3 +162,12 @@ async function getBookContents (url, bookSource) {
 // const worker1 = new worker.Worker(isDevelopment ? path.join(__dirname, 'work.js') : path.join(process.resourcesPath, 'static/worker/work.js'))
 //
 // worker1.postMessage('aaa')
+
+ipcMain.on('windowOperation.minimize', () => win.minimize())
+
+ipcMain.on('windowOperation.close', () => win.close())
+
+ipcMain.handle('profileHandle.get.serializingNovel', async () => {
+  await fileInitAsync
+  return serializingNovelObject
+})

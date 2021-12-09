@@ -4,14 +4,18 @@
     "description": "",
     "type": "common",
     "enable": true,
-    "url": "https://www.bookshuku.com",
+    "url": "https://www.bxwxorg.com",
     "priorities": 2,
     "match_rule": {
       "contents": {
         "url": "/read/{bookId}",
         "content": "text/html",
         "encoding": "UTF-8",
-        "match_method": "regexp"
+        "match_method": "regexp",
+        "rules": {
+          "list": "<dl>.*?</dl>",
+          ""
+        }
       }
     }
   }

@@ -43,15 +43,21 @@ import Paragraph from './components/Sidebar/Paragraph'
 export default {
   components: { Item, Paragraph },
   data () {
+    let serializingNovel
+    (async function () {
+      serializingNovel = await window.electron.profileHandle.get.serializingNovel()
+    })()
     window.vueAPI = this
-    return {}
+    return {
+      serializingNovel
+    }
   },
   methods: {
     close_window () {
-      console.log('minimize')
+      window.electron.windowOperation.minimize()
     },
     minimize_window () {
-      console.log('close')
+      window.electron.windowOperation.close()
     }
   },
   computed: {}
