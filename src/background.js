@@ -12,10 +12,10 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let bookSourceProfile
 let bookSourceObject
 let serializingNovelProfile
-let serializingNovelObject
+let serializingNovelArray
 let win
 
-const fileInitAsync = (async function () {
+const initProgramProfile = (async function () {
   if (isDevelopment) {
     bookSourceProfile = await fs.open('./data/books-source.json', 'a+')
     serializingNovelProfile = await fs.open('./data/serializing-books.json', 'a+')
@@ -37,16 +37,16 @@ const fileInitAsync = (async function () {
     bookSourceObject = {}
   }
   try {
-    serializingNovelObject = JSON.parse(temp2)
+    serializingNovelArray = JSON.parse(temp2)
   } catch {
     if (!temp2) {
       await serializingNovelProfile.writeFile('[\n\n]', { encoding: 'utf8' })
     } else {
       console.log('---------\n\nIs serializing novel profile SYNTAX ERROR?! Please check. \n\n---------')
     }
-    serializingNovelObject = []
+    serializingNovelArray = []
   }
-  console.log(bookSourceObject, serializingNovelObject)
+  console.log(bookSourceObject, serializingNovelArray)
 })()
 
 // Scheme must be registered before the app is ready
@@ -168,6 +168,6 @@ ipcMain.on('windowOperation.minimize', () => win.minimize())
 ipcMain.on('windowOperation.close', () => win.close())
 
 ipcMain.handle('profileHandle.get.serializingNovel', async () => {
-  await fileInitAsync
-  return serializingNovelObject
+  await initProgramProfile
+  return serializingNovelArray
 })

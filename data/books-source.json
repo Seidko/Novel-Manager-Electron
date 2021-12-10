@@ -13,8 +13,7 @@
         "encoding": "UTF-8",
         "match_method": "regexp",
         "rules": {
-          "list": "<dl>.*?</dl>",
-          ""
+          "list": "<dl>.*?</dl>"
         }
       }
     }

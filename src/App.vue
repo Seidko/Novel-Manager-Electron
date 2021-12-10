@@ -1,8 +1,9 @@
 <template>
   <div id="main-warp">
-<!--    <img src="./assets/RE4pdF1.png" alt="" class="image_link"/>-->
-<!--    <img src="./assets/RE4wE9C.png" alt="" class="image_link"/>-->
-<!--    <img src="./assets/RE4wqHL.png" alt="" class="image_link"/>-->
+    <!-- style="{ backgroundImage: BackgroundImage }" -->
+    <!-- <img src="./assets/RE4pdF1.png" alt="" class="image_link"/>-->
+    <!-- <img src="./assets/RE4wE9C.png" alt="" class="image_link"/>-->
+    <!-- <img src="./assets/RE4wqHL.png" alt="" class="image_link"/>-->
 
     <nav id="navbar">
       <div id="navbar-logo">
@@ -32,24 +33,35 @@
     </aside>
 
     <div id="main-page">
+      <div id="main-page-fast-update-title" class="clickable-list-title">&#9193;快捷更新</div>
+      <div id="main-page-fast-update-container" class="clickable-list-container">
+        <FastUpdateItem v-for="index in serializingNovelArray" :key="`main-page-fast-update-item-${index}`"
+                        :cover="serializingNovelArray[index]">
 
+        </FastUpdateItem>
+        <p v-for="_ of [1, 2, 3, 4]" class="clickable-list-fill" :key="_"></p>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import Item from './components/Sidebar/Item'
 import Paragraph from './components/Sidebar/Paragraph'
+import FastUpdateItem from './components/MainPage/Home/FastUpdateItem'
 
 export default {
-  components: { Item, Paragraph },
+  components: {
+    Item,
+    Paragraph,
+    FastUpdateItem
+  },
   data () {
-    let serializingNovel
-    (async function () {
-      serializingNovel = await window.electron.profileHandle.get.serializingNovel()
+    window.vueAPI = this;
+    (async () => {
+      this.serializingNovelArray = await window.electron.getSerializingNovel()
     })()
-    window.vueAPI = this
     return {
-      serializingNovel
+      serializingNovelArray: undefined
     }
   },
   methods: {
@@ -138,6 +150,12 @@ export default {
 
 #main-page {
   grid-area: main-page;
+  display        : flex;
+  justify-content: flex-start;
+  align-items    : stretch;
+  flex-direction : column;
+  overflow-y     : scroll;
+  overflow-x     : hidden;
 }
 
 .image_link {
@@ -146,6 +164,32 @@ export default {
 
 .clickable {
   cursor: pointer;
+}
+
+.clickable-list-title {
+  border-radius: 5px;
+  background   : #0000002c;
+  margin       : 4px 6px;
+  padding      : 6px 10px 8px;
+  font-size    : 17px;
+  font-weight  : 550;
+  font-family  : '微软雅黑', sans-serif;
+  color        : #000;
+  text-shadow  : 2px 2px 2px #929292;
+}
+
+.clickable-list-container {
+  transition    : all 1s ease;
+  display       : flex;
+  flex-direction: row;
+  flex-wrap     : wrap;
+}
+
+.clickable-list-fill {
+  width    : 300px;
+  flex-grow: 1;
+  margin   : 0 18px;
+  height   : 0;
 }
 
 </style>
