@@ -7,7 +7,7 @@
     "url": "https://www.bxwxorg.com",
     "priorities": 2,
     "match_rule": {
-      "contents": {
+      "details": {
         "url": "/read/{bookId}",
         "content": "text/html",
         "encoding": "UTF-8",
