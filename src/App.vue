@@ -1,5 +1,5 @@
 <template>
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div></div>
 </template>
 
 <script lang="ts">
