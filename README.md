@@ -1,7 +1,7 @@
 # 📚 Novel Manager Electron  
 
 <!--suppress CheckImageSize -->
-<img alt="icon" src="./src/assets/icon.png" height="64" width="64"/>
+<img alt="icon" src="./src/assets/icon/icon.png" height="64" width="64"/>
 
 ## ℹ Description
 Novel Manager Electron is a desktop application that allows you to manage your local novel file.
