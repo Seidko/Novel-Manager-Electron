@@ -24,4 +24,4 @@ So I have an idea develop a desktop application to manage the mountains of text 
 4. ✂ split your novel by chapter, it will be useful when you need to limit your file size.
 
 ## 📜 License
-I haven't decided my open source license yet, so **All Right Reserved**.
+This project is available under the [MIT License](https://github.com/Seidko/Novel-Manager-Electron/blob/master/LICENSE).
