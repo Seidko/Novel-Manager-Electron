@@ -2,6 +2,7 @@
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import * as fs from 'fs/promises'
 import * as path from 'path'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -71,3 +72,7 @@ if (isDevelopment) {
 
 ipcMain.on('windowOperation.minimize', () => MainWindow.minimize())
 ipcMain.on('windowOperation.close', () => MainWindow.close())
+
+ipcMain.handle('languageHandle.zhHans', () => {
+  return fs.readFile('./languages/zh-hans.json', { encoding: 'utf-8' }).then(value => JSON.parse(value))
+})

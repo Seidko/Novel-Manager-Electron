@@ -1,0 +1,17 @@
+{
+  "ui": {
+    "sidebar": {
+      "fetch": "获取",
+      "homepage": "首页",
+      "bookstore": "书城",
+      "search": "搜索",
+      "download": "下载",
+      "update": "更新",
+      "tools": "工具",
+      "split": "分割",
+      "adblock": "去除广告",
+      "manage": "管理",
+      "settings": "设置"
+    }
+  }
+}

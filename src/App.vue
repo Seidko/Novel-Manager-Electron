@@ -1,7 +1,7 @@
 <template>
-  <nav class="navbar" @load="switchLang(language)">
+  <nav class="navbar">
     <div class="title">
-      <img src="./assets/icon/icon.png" alt="icon" class="icon"/>
+      <img src="./assets/icon.png" alt="icon" class="icon"/>
       <span class="text">Novel Manager</span>
     </div>
     <div class="button">
@@ -15,9 +15,9 @@
     </div>
   </nav>
   <aside class="sidebar">
-    <sidebar-paragraph>{{string.ui.sidebar.fetch}}</sidebar-paragraph>
-    <sidebar-item id="homepage" icon="&#127968;">{{string.ui.sidebar.homepage}}</sidebar-item>
-    <sidebar-item id="bookstore" icon="&#128218;">{{string.ui.sidebar.bookstore}}</sidebar-item>
+    <sidebar-paragraph>{{ string.ui.sidebar.fetch }}</sidebar-paragraph>
+    <sidebar-item id="homepage" icon="&#127968;">{{ string.ui.sidebar.homepage }}</sidebar-item>
+    <sidebar-item id="bookstore" icon="&#128218;">{{ string.ui.sidebar.bookstore }}</sidebar-item>
     <sidebar-item id="search" icon="&#128270;">{{string.ui.sidebar.search}}</sidebar-item>
     <sidebar-item id="download" icon="&#11015;">{{string.ui.sidebar.download}}</sidebar-item>
     <sidebar-item id="update" icon="&#128259;">{{string.ui.sidebar.update}}</sidebar-item>
@@ -40,62 +40,41 @@ import sidebarItem from './components/sidebar/item.vue'
     sidebarItem
   },
   methods: {
-    switchLang (lang: string) {
-      if (!['zh-hans', 'en-us'].includes(lang)) throw new Error('unsupport language')
-      this.language = lang
-      if (this.language === 'zh-hans') {
-        this.string = {
-          ui: {
-            sidebar: {
-              fetch: '获取',
-              homepage: '首页',
-              bookstore: '书城',
-              search: '搜索',
-              download: '下载',
-              update: '更新',
-              tools: '工具',
-              split: '分割',
-              adblock: '去除广告',
-              manage: '管理',
-              settings: '设置'
-            }
-          }
-        }
-      } else if (this.language === 'en-us') {
-        this.string = {
-          ui: {
-            sidebar: {
-              fetch: 'Fetch',
-              homepage: 'Homepage',
-              bookstore: 'Bookstore',
-              search: 'Search',
-              download: 'Download',
-              update: 'Update',
-              tools: 'Tools',
-              split: 'Split',
-              adblock: 'ADBlock',
-              manage: 'Manage',
-              settings: 'Settings'
-            }
-          }
-        }
+    async switchLanguage (lang: string) {
+      if (lang === 'zh-hans') {
+        this.string = await this.novelManager.languageHandle.zhHans()
       }
     }
   },
   data () {
     (window as any).vueAPI = this
-    const language = 'zh-hans'
+    const language = 'en-us'
     const xhr = new XMLHttpRequest()
     xhr.open('GET', 'https://api.xygeng.cn/Bing/url/', true)
     xhr.send()
     xhr.onload = () => { document.getElementById('app')!.style.backgroundImage = `url(${JSON.parse(xhr.response).data})` }
     xhr.onerror = () => { document.getElementById('app')!.style.backgroundImage = 'url(./asset/background/default.png)' }
-    let string
     // this.switchLang(language)
     // TODO: call switch language function instead of hard code
     return {
       novelManager: (window as any).novelManager,
-      string,
+      string: {
+        ui: {
+          sidebar: {
+            fetch: 'Fetch',
+            homepage: 'Homepage',
+            bookstore: 'Bookstore',
+            search: 'Search',
+            download: 'Download',
+            update: 'Update',
+            tools: 'Tools',
+            split: 'Split',
+            adblock: 'ADBlock',
+            manage: 'Manage',
+            settings: 'Settings'
+          }
+        }
+      },
       language
     }
   }

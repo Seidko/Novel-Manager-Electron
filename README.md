@@ -1,7 +1,7 @@
 # 📚 Novel Manager Electron  
 
 <!--suppress CheckImageSize -->
-<img alt="icon" src="./src/assets/icon/icon.png" height="64" width="64"/>
+<img alt="icon" src="./src/assets/icon.png" height="64" width="64"/>
 
 ## ℹ Description
 Novel Manager Electron is a desktop application that allows you to manage your local novel file.
@@ -18,10 +18,14 @@ So I have an idea develop a desktop application to manage the mountains of text 
 2. 📚 add some books source, it is the source of book.
 
 ## 🔜 TODO
-1. 🛑 text adblock. Remove annoying website ad inserted in text.
-2. 📶 source trust level. when a books source have many incorrect and redundancy, this books source will be reduced using. Oppositely, when a books source do little incorrect, it will be used more.
-3. 📗 book store and 🔎 search
-4. ✂ split your novel by chapter, it will be useful when you need to limit your file size.
+
+- 💬 allow you download and preview reading website comment
+  - you can save it as **txtx** (image will be saved as base64) and **txtz** (image and text will be saved as compressed package) 
+  - this maybe used in my next project.
+- 📶 source trust level. when a books source have many incorrect and redundancy, this books source will be reduced using. Oppositely, when a books source do little incorrect, it will be used more.
+- 📗 book store and 🔎 search
+- ✂ split your novel by chapter, it will be useful when you need to limit your file size.
+- 🛑 text adblock. Remove annoying website ad inserted in text.
 
 ## 📜 License
 This project is available under the [MIT License](https://github.com/Seidko/Novel-Manager-Electron/blob/master/LICENSE).

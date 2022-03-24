@@ -1,7 +1,7 @@
 {
   "name": "novel-manager-electron",
   "version": "0.1.0",
-  "private": true,
+  "main": "background.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
