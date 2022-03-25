@@ -10,16 +10,14 @@ contextBridge.exposeInMainWorld('novelManager', {
     }
   },
   profileHandle: {
-    get: {
-      serializingNovel () {
-        return ipcRenderer.invoke('profileHandle.get.serializingNovel')
+    settings: {
+      get () {
+        return ipcRenderer.invoke('profileHandle.settings.get')
       }
     }
   },
-  languageHandle: {
-    zhHans () {
-      return ipcRenderer.invoke('languageHandle.zhHans')
-    }
+  languageToggle (lang: string) {
+    return ipcRenderer.invoke('languageToggle', lang)
   }
 })
 

@@ -1,0 +1,17 @@
+{
+  "ui": {
+    "sidebar": {
+      "fetch": "Fetch",
+      "homepage": "Homepage",
+      "bookstore": "Bookstore",
+      "search": "Search",
+      "download": "Download",
+      "update": "Update",
+      "tools": "Tools",
+      "split": "Split",
+      "adblock": "ADBlock",
+      "manage": "Manage",
+      "settings": "Settings"
+    }
+  }
+}

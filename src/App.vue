@@ -41,23 +41,35 @@ import sidebarItem from './components/sidebar/item.vue'
   },
   methods: {
     async switchLanguage (lang: string) {
-      if (lang === 'zh-hans') {
-        this.string = await this.novelManager.languageHandle.zhHans()
+      try {
+        this.string = await this.novelManager.languageToggle(lang)
+        this.setting.language = lang
+      } catch (err: any) {
+        if (err.message.includes('no such file or directory')) {
+          throw new Error('Error: no such language in languages directory!')
+        }
       }
     }
   },
-  data () {
-    (window as any).vueAPI = this
-    const language = 'en-us'
+  async created () {
     const xhr = new XMLHttpRequest()
     xhr.open('GET', 'https://api.xygeng.cn/Bing/url/', true)
     xhr.send()
     xhr.onload = () => { document.getElementById('app')!.style.backgroundImage = `url(${JSON.parse(xhr.response).data})` }
-    xhr.onerror = () => { document.getElementById('app')!.style.backgroundImage = 'url(./asset/background/default.png)' }
-    // this.switchLang(language)
-    // TODO: call switch language function instead of hard code
+    this.setting = await this.novelManager.profileHandle.settings.get()
+    if (this.setting.language === 'system') {
+      await this.switchLanguage(navigator.language)
+    } else {
+      await this.switchLanguage(this.setting.language)
+    }
+  },
+  data () {
+    (window as any).vueAPI = this
     return {
       novelManager: (window as any).novelManager,
+      setting: {
+        language: navigator.language
+      },
       string: {
         ui: {
           sidebar: {
@@ -74,8 +86,7 @@ import sidebarItem from './components/sidebar/item.vue'
             settings: 'Settings'
           }
         }
-      },
-      language
+      }
     }
   }
 })
@@ -94,6 +105,7 @@ body {
   height: 100vh;
   background-size: cover;
   user-select: none;
+  background-image: url("./assets/default-background.png");
 }
 
 .button {

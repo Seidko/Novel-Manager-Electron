@@ -73,6 +73,10 @@ if (isDevelopment) {
 ipcMain.on('windowOperation.minimize', () => MainWindow.minimize())
 ipcMain.on('windowOperation.close', () => MainWindow.close())
 
-ipcMain.handle('languageHandle.zhHans', () => {
-  return fs.readFile('./languages/zh-hans.json', { encoding: 'utf-8' }).then(value => JSON.parse(value))
+ipcMain.handle('languageToggle', (_, lang) => {
+  return fs.readFile(`./languages/${lang}.json`, { encoding: 'utf-8' }).then(value => JSON.parse(value))
+})
+
+ipcMain.handle('profileHandle.settings.get', () => {
+  return fs.readFile('./data/settings.json', { encoding: 'utf-8' }).then(value => JSON.parse(value))
 })
