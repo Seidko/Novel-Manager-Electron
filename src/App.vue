@@ -15,29 +15,34 @@
     </div>
   </nav>
   <aside class="sidebar">
-    <sidebar-paragraph>{{ string.ui.sidebar.fetch }}</sidebar-paragraph>
-    <sidebar-item id="homepage" icon="&#127968;">{{ string.ui.sidebar.homepage }}</sidebar-item>
-    <sidebar-item id="bookstore" icon="&#128218;">{{ string.ui.sidebar.bookstore }}</sidebar-item>
-    <sidebar-item id="search" icon="&#128270;">{{string.ui.sidebar.search}}</sidebar-item>
-    <sidebar-item id="download" icon="&#11015;">{{string.ui.sidebar.download}}</sidebar-item>
-    <sidebar-item id="update" icon="&#128259;">{{string.ui.sidebar.update}}</sidebar-item>
-    <sidebar-paragraph>{{string.ui.sidebar.tools}}</sidebar-paragraph>
-    <sidebar-item id="split" icon="&#9986;">{{string.ui.sidebar.split}}</sidebar-item>
-    <sidebar-item id="adblock" icon="&#128721;">{{string.ui.sidebar.adblock}}</sidebar-item>
-    <sidebar-paragraph>{{string.ui.sidebar.manage}}</sidebar-paragraph>
-    <sidebar-item id="adblock" icon="&#9881;">{{string.ui.sidebar.settings}}</sidebar-item>
+    <SidebarParagraph>{{ string.ui.sidebar.fetch }}</SidebarParagraph>
+    <SidebarItem id="homepage" icon="&#127968;">{{ string.ui.sidebar.homepage }}</SidebarItem>
+    <SidebarItem id="bookstore" icon="&#128218;">{{ string.ui.sidebar.bookstore }}</SidebarItem>
+    <SidebarItem id="search" icon="&#128270;">{{ string.ui.sidebar.search }}</SidebarItem>
+    <SidebarItem id="download" icon="&#11015;">{{ string.ui.sidebar.download }}</SidebarItem>
+    <SidebarItem id="update" icon="&#128259;">{{ string.ui.sidebar.update }}</SidebarItem>
+    <SidebarParagraph>{{ string.ui.sidebar.tools }}</SidebarParagraph>
+    <SidebarItem id="split" icon="&#9986;">{{ string.ui.sidebar.split }}</SidebarItem>
+    <SidebarItem id="adblock" icon="&#128721;">{{ string.ui.sidebar.adblock }}</SidebarItem>
+    <SidebarParagraph>{{ string.ui.sidebar.manage }}</SidebarParagraph>
+    <SidebarItem id="adblock" icon="&#9881;">{{ string.ui.sidebar.settings }}</SidebarItem>
   </aside>
+  <main class="main">
+    <MainHomepage></MainHomepage>
+  </main>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
-import sidebarParagraph from './components/sidebar/paragraph.vue'
-import sidebarItem from './components/sidebar/item.vue'
+import SidebarParagraph from '@/components/sidebar/paragraph.vue'
+import SidebarItem from '@/components/sidebar/item.vue'
+import MainHomepage from '@/components/main/homepage.vue'
 
 @Options({
   components: {
-    sidebarParagraph,
-    sidebarItem
+    MainHomepage,
+    SidebarParagraph,
+    SidebarItem
   },
   methods: {
     async switchLanguage (lang: string) {
@@ -64,7 +69,7 @@ import sidebarItem from './components/sidebar/item.vue'
     }
   },
   data () {
-    (window as any).vueAPI = this
+    if (process.env.NODE_ENV !== 'production') (window as any).vueAPI = this
     return {
       novelManager: (window as any).novelManager,
       setting: {
@@ -88,6 +93,11 @@ import sidebarItem from './components/sidebar/item.vue'
         }
       }
     }
+  },
+  provide () {
+    return {
+      string: this.string
+    }
   }
 })
 
@@ -106,6 +116,10 @@ body {
   background-size: cover;
   user-select: none;
   background-image: url("./assets/default-background.png");
+  display: grid;
+  grid-template-areas: "navbar navbar" "sidebar main";
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 41px 1fr;
 }
 
 .button {
@@ -114,6 +128,7 @@ body {
 
 .navbar {
   -webkit-app-region: drag;
+  grid-area: navbar;
   background: #5c66c0d2;
   cursor: default;
   display: flex;
@@ -151,8 +166,11 @@ body {
 }
 
 .sidebar {
-  width: 240px;
-  height: calc(100vh - 41px);
+  grid-area: sidebar;
   background-color: #FFFFFF55;
+}
+
+.main {
+  grid-area: main;
 }
 </style>

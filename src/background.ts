@@ -78,5 +78,6 @@ ipcMain.handle('languageToggle', (_, lang) => {
 })
 
 ipcMain.handle('profileHandle.settings.get', () => {
-  return fs.readFile('./data/settings.json', { encoding: 'utf-8' }).then(value => JSON.parse(value))
+  return fs.readFile('./data/settings.json', { encoding: 'utf-8' })
+    .then(value => Object.assign(JSON.parse(value), { isDevelopment: isDevelopment }))
 })
