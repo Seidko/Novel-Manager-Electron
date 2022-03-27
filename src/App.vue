@@ -15,17 +15,17 @@
     </div>
   </nav>
   <aside class="sidebar">
-    <SidebarParagraph>{{ string.ui.sidebar.fetch }}</SidebarParagraph>
-    <SidebarItem id="homepage" icon="&#127968;">{{ string.ui.sidebar.homepage }}</SidebarItem>
-    <SidebarItem id="bookstore" icon="&#128218;">{{ string.ui.sidebar.bookstore }}</SidebarItem>
-    <SidebarItem id="search" icon="&#128270;">{{ string.ui.sidebar.search }}</SidebarItem>
-    <SidebarItem id="download" icon="&#11015;">{{ string.ui.sidebar.download }}</SidebarItem>
-    <SidebarItem id="update" icon="&#128259;">{{ string.ui.sidebar.update }}</SidebarItem>
-    <SidebarParagraph>{{ string.ui.sidebar.tools }}</SidebarParagraph>
-    <SidebarItem id="split" icon="&#9986;">{{ string.ui.sidebar.split }}</SidebarItem>
-    <SidebarItem id="adblock" icon="&#128721;">{{ string.ui.sidebar.adblock }}</SidebarItem>
-    <SidebarParagraph>{{ string.ui.sidebar.manage }}</SidebarParagraph>
-    <SidebarItem id="adblock" icon="&#9881;">{{ string.ui.sidebar.settings }}</SidebarItem>
+    <SidebarParagraph>{{ strings.ui.sidebar.fetch }}</SidebarParagraph>
+    <SidebarItem id="homepage" icon="&#127968;">{{ strings.ui.sidebar.homepage }}</SidebarItem>
+    <SidebarItem id="bookstore" icon="&#128218;">{{ strings.ui.sidebar.bookstore }}</SidebarItem>
+    <SidebarItem id="search" icon="&#128270;">{{ strings.ui.sidebar.search }}</SidebarItem>
+    <SidebarItem id="download" icon="&#11015;">{{ strings.ui.sidebar.download }}</SidebarItem>
+    <SidebarItem id="update" icon="&#128259;">{{ strings.ui.sidebar.update }}</SidebarItem>
+    <SidebarParagraph>{{ strings.ui.sidebar.tools }}</SidebarParagraph>
+    <SidebarItem id="split" icon="&#9986;">{{ strings.ui.sidebar.split }}</SidebarItem>
+    <SidebarItem id="adblock" icon="&#128721;">{{ strings.ui.sidebar.adblock }}</SidebarItem>
+    <SidebarParagraph>{{ strings.ui.sidebar.manage }}</SidebarParagraph>
+    <SidebarItem id="adblock" icon="&#9881;">{{ strings.ui.sidebar.settings }}</SidebarItem>
   </aside>
   <main class="main">
     <MainHomepage></MainHomepage>
@@ -44,16 +44,14 @@ import MainHomepage from '@/components/main/homepage.vue'
     SidebarParagraph,
     SidebarItem
   },
+  computed: {
+    strings () {
+      return this.$store.state.strings
+    }
+  },
   methods: {
-    async switchLanguage (lang: string) {
-      try {
-        this.string = await this.novelManager.languageToggle(lang)
-        this.setting.language = lang
-      } catch (err: any) {
-        if (err.message.includes('no such file or directory')) {
-          throw new Error('Error: no such language in languages directory!')
-        }
-      }
+    languageToggle (lang: string) {
+      this.$store.dispatch('languageToggle', lang)
     }
   },
   async created () {
@@ -61,42 +59,12 @@ import MainHomepage from '@/components/main/homepage.vue'
     xhr.open('GET', 'https://api.xygeng.cn/Bing/url/', true)
     xhr.send()
     xhr.onload = () => { document.getElementById('app')!.style.backgroundImage = `url(${JSON.parse(xhr.response).data})` }
-    this.setting = await this.novelManager.profileHandle.settings.get()
-    if (this.setting.language === 'system') {
-      await this.switchLanguage(navigator.language)
-    } else {
-      await this.switchLanguage(this.setting.language)
-    }
+    document.getElementById('app')!.onerror = () => { document.getElementById('app')!.style.backgroundImage = 'url("./assets/default-background.png");' }
   },
   data () {
     if (process.env.NODE_ENV !== 'production') (window as any).vueAPI = this
     return {
-      novelManager: (window as any).novelManager,
-      setting: {
-        language: navigator.language
-      },
-      string: {
-        ui: {
-          sidebar: {
-            fetch: 'Fetch',
-            homepage: 'Homepage',
-            bookstore: 'Bookstore',
-            search: 'Search',
-            download: 'Download',
-            update: 'Update',
-            tools: 'Tools',
-            split: 'Split',
-            adblock: 'ADBlock',
-            manage: 'Manage',
-            settings: 'Settings'
-          }
-        }
-      }
-    }
-  },
-  provide () {
-    return {
-      string: this.string
+      novelManager: (window as any).novelManager
     }
   }
 })

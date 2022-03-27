@@ -2,20 +2,32 @@
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
-import * as fs from 'fs/promises'
+import * as pfs from 'fs/promises'
+import * as fs from 'fs'
 import * as path from 'path'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global value definition
-let MainWindow: BrowserWindow
+let mainWindow: BrowserWindow
+let settings: any
 // end definition
 
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+pfs.readFile('./data/settings.json', { encoding: 'utf-8' })
+  .then(value => {
+    if (value === '') {
+      settings = {}
+      console.warn('WARN Setting file is empty!!!')
+    } else {
+      settings = JSON.parse(value)
+    }
+  })
+
 async function createWindow () {
-  MainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 560,
     minWidth: 890,
@@ -29,11 +41,11 @@ async function createWindow () {
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
-    await MainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-    if (!process.env.IS_TEST) MainWindow.webContents.openDevTools()
+    await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
+    if (!process.env.IS_TEST) mainWindow.webContents.openDevTools()
   } else {
     createProtocol('app')
-    await MainWindow.loadURL('app://./index.html')
+    await mainWindow.loadURL('app://./index.html')
   }
 }
 
@@ -70,14 +82,23 @@ if (isDevelopment) {
   }
 }
 
-ipcMain.on('windowOperation.minimize', () => MainWindow.minimize())
-ipcMain.on('windowOperation.close', () => MainWindow.close())
-
-ipcMain.handle('languageToggle', (_, lang) => {
-  return fs.readFile(`./languages/${lang}.json`, { encoding: 'utf-8' }).then(value => JSON.parse(value))
+app.on('quit', () => {
+  const temp = JSON.stringify(settings, null, '  ')
+  fs.writeFileSync('./data/settings.json', temp, { encoding: 'utf-8' })
 })
 
-ipcMain.handle('profileHandle.settings.get', () => {
-  return fs.readFile('./data/settings.json', { encoding: 'utf-8' })
-    .then(value => Object.assign(JSON.parse(value), { isDevelopment: isDevelopment }))
+ipcMain.on('windowOperation.minimize', () => mainWindow.minimize())
+ipcMain.on('windowOperation.close', () => mainWindow.close())
+
+ipcMain.on('languageToggle', async (ipc, lang) => {
+  ipc.returnValue = await pfs.readFile(`./languages/${lang}.json`, { encoding: 'utf-8' }).then(value => JSON.parse(value))
+})
+
+ipcMain.on('profileHandle.settings.get', async (ipc) => {
+  ipc.returnValue = Object.assign({}, settings, { isDevelopment: isDevelopment })
+})
+
+ipcMain.handle('profileHandle.settings.set', async (_, payload) => {
+  delete payload.isDevelopment
+  settings = payload
 })

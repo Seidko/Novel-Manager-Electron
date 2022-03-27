@@ -12,12 +12,12 @@ contextBridge.exposeInMainWorld('novelManager', {
   profileHandle: {
     settings: {
       get () {
-        return ipcRenderer.invoke('profileHandle.settings.get')
+        return ipcRenderer.sendSync('profileHandle.settings.get')
       }
     }
   },
   languageToggle (lang: string) {
-    return ipcRenderer.invoke('languageToggle', lang)
+    return ipcRenderer.sendSync('languageToggle', lang)
   }
 })
 

@@ -12,6 +12,9 @@
       "adblock": "去除广告",
       "manage": "管理",
       "settings": "设置"
+    },
+    "main": {
+      "fastUpdate": "快捷更新"
     }
   }
 }

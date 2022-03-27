@@ -9,9 +9,12 @@
       "update": "Update",
       "tools": "Tools",
       "split": "Split",
-      "adblock": "ADBlock",
-      "manage": "Manage",
+      "adblock": "Text ADBlock",
+      "manage": "Application Manage",
       "settings": "Settings"
+    },
+    "main": {
+      "fastUpdate": "Fast Update"
     }
   }
 }
