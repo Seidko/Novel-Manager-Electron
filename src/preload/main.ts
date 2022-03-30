@@ -24,5 +24,4 @@ contextBridge.exposeInMainWorld('novelManager', {
 contextBridge.exposeInMainWorld('log', {
 
 })
-
 console.log('Load preload file successfully')
