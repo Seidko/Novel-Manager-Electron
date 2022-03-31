@@ -1,26 +1,25 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-var-requires,no-new-func */
 'use strict'
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
-import * as fs from 'fs'
-import * as path from 'path'
+import fs from 'fs'
+import path from 'path'
+import booksHandle from '@/modules/booksHandle'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global value definition
 let mainWindow: BrowserWindow
 let settings: any
-let sources: any
-let books: any
-let booksDetails: any
+const updatingBooks: booksHandle.UpdatingBook[] = []
 // end definition
 
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
-]);
+])
 
-(async function () {
+const init = (async function () {
   try {
     const raw = await fs.promises.readFile('./data/settings.json', { encoding: 'utf-8' })
     if (raw === '') {
@@ -38,61 +37,34 @@ protocol.registerSchemesAsPrivileged([
     } else throw e
   }
 
-  try {
-    const raw = await fs.promises.readFile('./data/sources.json', { encoding: 'utf-8' })
-    if (raw === '') {
-      sources = {}
-      await fs.promises.writeFile('./data/sources.json', JSON.stringify(sources, null, '  '), { encoding: 'utf-8' })
-      console.warn('WARN Sources file is empty.')
-    } else {
-      sources = JSON.parse(raw)
-    }
-  } catch (e: any) {
-    if (e.errno === -4058) {
-      sources = {}
-      await fs.promises.writeFile('./data/sources.json', JSON.stringify(sources, null, '  '), { encoding: 'utf-8' })
-      console.warn('WARN No sources file, created one.')
-    } else throw e
+  let temp1: any = {
+    updating: []
   }
 
   try {
     const raw = await fs.promises.readFile('./data/books.json', { encoding: 'utf-8' })
     if (raw === '') {
-      books = {
-        updating: []
-      }
-      await fs.promises.writeFile('./data/books.json', JSON.stringify(books, null, '  '), { encoding: 'utf-8' })
+      await fs.promises.writeFile('./data/books.json', JSON.stringify(temp1, null, '  '), { encoding: 'utf-8' })
       console.warn('WARN Books file is empty.')
     } else {
-      books = JSON.parse(raw)
+      temp1 = JSON.parse(raw)
     }
   } catch (e: any) {
     if (e.errno === -4058) {
-      books = {
-        updating: []
-      }
-      await fs.promises.writeFile('./data/books.json', JSON.stringify(books, null, '  '), { encoding: 'utf-8' })
+      await fs.promises.writeFile('./data/books.json', JSON.stringify(temp1, null, '  '), { encoding: 'utf-8' })
       console.warn('WARN No books file, created one.')
     } else throw e
   }
-  for (const book of books) {
-    let bookDetail = {}
-    for (const source of book.sources) {
-      if (source.trustLevel < 50) continue
-      const temp = `./data/patterns/${source.sourceId}/bookInfo.js`
-      if (!source[source.sourceId].patterns.bookInfo.function) source[source.sourceId].patterns.bookInfo.function = require(temp)
-      bookDetail = source[source.sourceId].patterns.bookInfo.function(book)
-    }
-    if (!bookDetail) {
-      // TODO: use Bubble Sort to sort the source
-      for (const source of book.sources) {
-        const temp = `./data/patterns/${source.sourceId}/bookInfo.js`
-        // TODO: use SHA to check code safe
-        if (!source[source.sourceId].patterns.bookInfo.function) source[source.sourceId].patterns.bookInfo.function = require(temp)
-        bookDetail = source[source.sourceId].patterns.bookInfo.function(book)
-      }
-    }
+
+  for (const book of temp1.updating) {
+    updatingBooks.push(new booksHandle.UpdatingBook(book))
   }
+
+  for (const book of updatingBooks) {
+    console.log(await book.getBookInfo())
+  }
+
+  return true
 })()
 
 async function createWindow () {
@@ -165,6 +137,7 @@ ipcMain.on('languageToggle', async (ipc, lang) => {
 })
 
 ipcMain.on('profileHandle.settings.get', async (ipc) => {
+  await init
   ipc.returnValue = Object.assign({}, settings, { isDevelopment: isDevelopment })
 })
 
@@ -173,6 +146,7 @@ ipcMain.handle('profileHandle.settings.set', async (_, payload) => {
   settings = payload
 })
 
-// bs.getBookInfo('qula', '46443277116')
-// const aa = require('../data/patterns/qula/bookInfo.js')
-// aa(46443277116).then((value: any) => console.log(value))
+ipcMain.handle('profileHandle.updatingBooks.getAll', async () => {
+  await init
+  return updatingBooks
+})
