@@ -16,60 +16,56 @@
   </nav>
   <aside class="sidebar">
     <SidebarParagraph>{{ strings.ui.sidebar.fetch }}</SidebarParagraph>
-    <SidebarItem id="homepage" icon="&#127968;">{{ strings.ui.sidebar.homepage }}</SidebarItem>
-    <SidebarItem id="bookstore" icon="&#128218;">{{ strings.ui.sidebar.bookstore }}</SidebarItem>
-    <SidebarItem id="search" icon="&#128270;">{{ strings.ui.sidebar.search }}</SidebarItem>
-    <SidebarItem id="download" icon="&#11015;">{{ strings.ui.sidebar.download }}</SidebarItem>
-    <SidebarItem id="update" icon="&#128259;">{{ strings.ui.sidebar.update }}</SidebarItem>
+    <SidebarItem icon="&#127968;">{{ strings.ui.sidebar.homepage }}</SidebarItem>
+    <SidebarItem icon="&#128218;">{{ strings.ui.sidebar.bookstore }}</SidebarItem>
+    <SidebarItem icon="&#128270;">{{ strings.ui.sidebar.search }}</SidebarItem>
+    <SidebarItem icon="&#11015;">{{ strings.ui.sidebar.download }}</SidebarItem>
+    <SidebarItem icon="&#128259;">{{ strings.ui.sidebar.update }}</SidebarItem>
     <SidebarParagraph>{{ strings.ui.sidebar.tools }}</SidebarParagraph>
-    <SidebarItem id="split" icon="&#9986;">{{ strings.ui.sidebar.split }}</SidebarItem>
-    <SidebarItem id="adblock" icon="&#128721;">{{ strings.ui.sidebar.adblock }}</SidebarItem>
+    <SidebarItem icon="&#9986;">{{ strings.ui.sidebar.split }}</SidebarItem>
+    <SidebarItem icon="&#128721;">{{ strings.ui.sidebar.adblock }}</SidebarItem>
     <SidebarParagraph>{{ strings.ui.sidebar.manage }}</SidebarParagraph>
-    <SidebarItem id="adblock" icon="&#9881;">{{ strings.ui.sidebar.settings }}</SidebarItem>
+    <SidebarItem icon="&#9881;">{{ strings.ui.sidebar.settings }}</SidebarItem>
   </aside>
   <main class="main">
-    <MainHomepage></MainHomepage>
+    <div id="homepage">
+      <div class="fast-update">
+        <div class="title">
+          <span v-pre class="icon">⏩</span>
+          <span class="text">{{ strings.ui.main.fastUpdate }}</span>
+        </div>
+        <div class="content" ></div>
+      </div>
+    </div>
   </main>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component'
+<script lang="ts" setup>
+import { computed, onMounted, reactive } from 'vue'
+import { useStore, Store } from 'vuex'
 import SidebarParagraph from '@/components/sidebar/paragraph.vue'
 import SidebarItem from '@/components/sidebar/item.vue'
-import MainHomepage from '@/components/main/homepage.vue'
 
-@Options({
-  components: {
-    MainHomepage,
-    SidebarParagraph,
-    SidebarItem
-  },
-  computed: {
-    strings () {
-      return this.$store.state.strings
-    }
-  },
-  methods: {
-    languageToggle (lang: string) {
-      this.$store.dispatch('languageToggle', lang)
-    }
-  },
-  async created () {
-    const xhr = new XMLHttpRequest()
-    xhr.open('GET', 'https://api.xygeng.cn/Bing/url/', true)
-    xhr.send()
-    xhr.onload = () => { document.getElementById('app')!.style.backgroundImage = `url(${JSON.parse(xhr.response).data})` }
-    document.getElementById('app')!.onerror = () => { document.getElementById('app')!.style.backgroundImage = 'url("./assets/default-background.png");' }
-  },
-  data () {
-    if (process.env.NODE_ENV !== 'production') (window as any).vueAPI = this
-    return {
-      novelManager: (window as any).novelManager
-    }
-  }
+const store: Store<any> = useStore()
+const novelManager = (window as any).novelManager
+
+const strings = computed<any>(() => store.state.strings)
+const updatingBooks: Array<any> = reactive([])
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function languageToggle (lang: string): void {
+  store.dispatch('languageToggle', lang)
+}
+
+onMounted(async () => {
+  const xhr = new XMLHttpRequest()
+  xhr.open('GET', 'https://api.xygeng.cn/Bing/url/', true)
+  xhr.send()
+  xhr.onload = () => { document.getElementById('app')!.style.backgroundImage = `url(${JSON.parse(xhr.response).data})` }
+  document.getElementById('app')!.onerror = () => { document.getElementById('app')!.style.backgroundImage = 'url("./assets/default-background.png");' }
+  updatingBooks.length = 0
+  updatingBooks.concat(await novelManager.profileHandle.updatingBooks.all())
 })
-
-export default class App extends Vue {}
 </script>
 
 <style>
@@ -141,4 +137,30 @@ body {
 .main {
   grid-area: main;
 }
+
+#homepage {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.fast-update {
+  display: flex;
+  flex-direction: column;
+}
+
+.fast-update .title {
+  margin: 5px;
+  background: #FFF;
+  border-radius: 3px;
+  height: 23px;
+  box-shadow: 2px 2px 3px #383838;
+}
+
+.fast-update .title .text {
+  font-size: 15px;
+  font-weight: 600;
+  text-shadow: 1px 1px 3px #9f9f9f;
+}
+
 </style>

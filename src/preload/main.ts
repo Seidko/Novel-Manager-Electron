@@ -14,6 +14,11 @@ contextBridge.exposeInMainWorld('novelManager', {
       get () {
         return ipcRenderer.sendSync('profileHandle.settings.get')
       }
+    },
+    updatingBooks: {
+      all (force = false) {
+        return ipcRenderer.invoke('profileHandle.updatingBooks.all', force)
+      }
     }
   },
   languageToggle (lang: string) {

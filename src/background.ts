@@ -61,7 +61,7 @@ const init = (async function () {
   }
 
   for (const book of updatingBooks) {
-    console.log(await book.getBookInfo())
+    await book.getBookInfo()
   }
 
   return true
@@ -146,7 +146,12 @@ ipcMain.handle('profileHandle.settings.set', async (_, payload) => {
   settings = payload
 })
 
-ipcMain.handle('profileHandle.updatingBooks.getAll', async () => {
+ipcMain.handle('profileHandle.updatingBooks.all', async (_, force = false) => {
   await init
-  return updatingBooks
+  const info = []
+
+  for (const book of updatingBooks) {
+    info.push(await book.getBookInfo(force))
+  }
+  return info
 })

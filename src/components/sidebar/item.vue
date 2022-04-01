@@ -1,5 +1,5 @@
 <template>
-  <div :id="id">
+  <div>
     <span class="icon" v-html="icon"></span>
     <span class="text">
       <slot>
