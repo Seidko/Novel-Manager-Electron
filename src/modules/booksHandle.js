@@ -1,8 +1,7 @@
 // noinspection JSUnresolvedVariable
 
 import fs from 'fs'
-import https from 'https'
-import buffer from 'buffer'
+import got from 'got'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const encoding = require('encoding')
 
@@ -34,28 +33,41 @@ const init = (async function () {
   return true
 })()
 
+// async function _getInfoRegexTemplate (url, regex) {
+//
+// }
+
+// async function _getChapterTemplate (url, regex, charMap) {
+//
+// }
+
 class BookSource {
   constructor (id, s) {
     this.priority = s.priority
     this.description = s.description
     this.patterns = s.patterns
-    // noinspection JSUnusedLocalSymbols
-    this.functions = {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      bookInfo (a, b, c, d) {
-        throw new ReferenceError('No "BookInfo" pattern in this source!')
-      }
-    }
     for (const i in s.patterns) {
       switch (s.patterns[i].method) {
-        case 'js':
-          this.functions[i] = new Fn('return ' + fs.readFileSync(`./data/patterns/${id}/bookInfo.js`, { encoding: 'utf-8' }))()
+        case 'js-file':
+          console.warn('WARN Use JavaScript src file is UNSAFE, recommend to use regex to get info from source')
+          this._getBookInfo = new Fn('return ' + fs.readFileSync(`./data/patterns/${id}/bookInfo.js`, { encoding: 'utf-8' }))()
+          break
+        case 'regex':
+          break
+        default: {
+          throw new Error(`Unexpect pattern method "${s.patterns[i].method}"`)
+        }
       }
     }
   }
 
   getBookInfo (id) {
-    return this.functions.bookInfo(id, https.get, encoding, buffer.Buffer)
+    switch (this.patterns.bookInfo.method) {
+      case 'js-file':
+        return this._getBookInfo(id, got.get, encoding)
+      case 'regex':
+        break
+    }
   }
 }
 
@@ -90,7 +102,15 @@ class Book {
     if (this.sources[0].using) {
       await init
       if (force || (!this._bookInfo.name)) {
-        this._bookInfo = await sources[this.sources[0].sourceId].getBookInfo(this.sources[0].bookId)
+        try {
+          this._bookInfo = await sources[this.sources[0].sourceId].getBookInfo(this.sources[0].bookId)
+        } catch (e) {
+          if (e.code === 'ECONNRESET') {
+            throw new Error('Cannot get book info from source. It may be rejected by source or network error.')
+          } else {
+            throw e
+          }
+        }
         return this._bookInfo
       } else {
         return this._bookInfo

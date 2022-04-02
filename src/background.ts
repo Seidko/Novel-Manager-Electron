@@ -19,7 +19,7 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
-const init = (async function () {
+const initLocal = (async function () {
   try {
     const raw = await fs.promises.readFile('./data/settings.json', { encoding: 'utf-8' })
     if (raw === '') {
@@ -36,7 +36,9 @@ const init = (async function () {
       console.warn('WARN No settings file, created one.')
     } else throw e
   }
+})()
 
+const initRemote = (async function () {
   let temp1: any = {
     updating: []
   }
@@ -61,7 +63,11 @@ const init = (async function () {
   }
 
   for (const book of updatingBooks) {
-    await book.getBookInfo()
+    try {
+      await book.getBookInfo(false)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   return true
@@ -69,15 +75,16 @@ const init = (async function () {
 
 async function createWindow () {
   mainWindow = new BrowserWindow({
-    width: 800,
+    width: 920,
     height: 560,
-    minWidth: 890,
+    minWidth: 920,
     minHeight: 560,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'main.js')
+      preload: path.join(__dirname, 'main.js'),
+      devTools: isDevelopment
     }
   })
 
@@ -129,7 +136,6 @@ app.on('quit', () => {
 })
 
 ipcMain.on('windowOperation.minimize', () => mainWindow.minimize())
-
 ipcMain.on('windowOperation.close', () => mainWindow.close())
 
 ipcMain.on('languageToggle', async (ipc, lang) => {
@@ -137,7 +143,7 @@ ipcMain.on('languageToggle', async (ipc, lang) => {
 })
 
 ipcMain.on('profileHandle.settings.get', async (ipc) => {
-  await init
+  await initLocal
   ipc.returnValue = Object.assign({}, settings, { isDevelopment: isDevelopment })
 })
 
@@ -146,10 +152,9 @@ ipcMain.handle('profileHandle.settings.set', async (_, payload) => {
   settings = payload
 })
 
-ipcMain.handle('profileHandle.updatingBooks.all', async (_, force = false) => {
-  await init
+ipcMain.handle('profileHandle.updatingBooks.all', async (_, force: boolean) => {
+  await initRemote
   const info = []
-
   for (const book of updatingBooks) {
     info.push(await book.getBookInfo(force))
   }

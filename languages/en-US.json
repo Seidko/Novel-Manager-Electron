@@ -14,7 +14,12 @@
       "settings": "Settings"
     },
     "main": {
-      "fastUpdate": "Fast Update"
+      "fastUpdate": "Fast Update",
+      "loading": "Loading...",
+      "refresh": "Refresh",
+      "errors": {
+        "novelInfoGettingError": "Cannot get book info from source. It may be rejected by source or network error. (Click to reload)"
+      }
     }
   }
 }

@@ -21,7 +21,7 @@ export default createStore({
   actions: {
     async languageToggle ({ commit, state }, lang: string) {
       try {
-        state.settings = await novelManager.languageToggle(lang)
+        state.strings = state.statesettings.language === 'system' || !state.settings.language ? novelManager.languageToggle(navigator.language) : novelManager.languageToggle(state.settings.language)
         commit('languageToggle', lang)
       } catch (err: any) {
         if (err.message.includes('no such file or directory')) {

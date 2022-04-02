@@ -14,8 +14,7 @@ import { Options, Vue } from 'vue-class-component'
 
 @Options({
   props: {
-    icon: String,
-    id: String
+    icon: String
   }
 })
 

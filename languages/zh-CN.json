@@ -9,12 +9,17 @@
       "update": "更新",
       "tools": "工具",
       "split": "分割",
-      "adblock": "去除广告",
+      "adblock": "广告去除",
       "manage": "管理",
       "settings": "设置"
     },
     "main": {
-      "fastUpdate": "快捷更新"
+      "fastUpdate": "快捷更新",
+      "loading": "加载中...",
+      "refresh": "刷新",
+      "errors": {
+        "novelInfoGettingError": "无法获取书籍信息，可能是书源拒绝了访问或者网络问题（点击以重新加载）"
+      }
     }
   }
 }
