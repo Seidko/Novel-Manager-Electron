@@ -1,9 +1,6 @@
-// noinspection JSUnresolvedVariable
-
 import fs from 'fs'
+import encoding from 'encoding'
 import got from 'got'
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const encoding = require('encoding')
 
 const Fn = Function
 const sources = {}
@@ -84,6 +81,7 @@ class Book {
     })
   }
 
+  // noinspection JSUnusedGlobalSymbols
   async getBookInfo (force = false) {
     if (!this.sources.length) {
       return {

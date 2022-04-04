@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span class="icon" v-html="icon"></span>
+    <span class="icon" v-html="props.icon"></span>
     <span class="text">
       <slot>
         <span style="background-color: red">Something Error Happened</span>
@@ -9,16 +9,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component'
-
-@Options({
-  props: {
-    icon: String
-  }
+<script lang="ts" setup>
+const props = defineProps({
+  icon: String
 })
-
-export default class item extends Vue {}
 </script>
 
 <style scoped>

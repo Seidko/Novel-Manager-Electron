@@ -6,7 +6,6 @@ import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import fs from 'fs'
 import path from 'path'
 import booksHandle from '@/modules/booksHandle'
-
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global value definition
@@ -81,8 +80,8 @@ async function createWindow () {
     minHeight: 560,
     titleBarStyle: 'hidden',
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
+      nodeIntegration: true,
+      nodeIntegrationInWorker: true,
       preload: path.join(__dirname, 'main.js'),
       devTools: isDevelopment
     }

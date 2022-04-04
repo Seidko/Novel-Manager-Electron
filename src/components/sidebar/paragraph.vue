@@ -9,12 +9,6 @@
  </div>
 </template>
 
-<script lang="ts">
-import { Vue } from 'vue-class-component'
-
-export default class Paragraph extends Vue {}
-</script>
-
 <style scoped>
 .paragraph {
   font-size: 12px;

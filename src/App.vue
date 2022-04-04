@@ -5,11 +5,11 @@
       <span class="text">Novel Manager</span>
     </div>
     <div class="button">
-      <svg width="22" height="22" xmlns="http://www.w3.org/2000/svg" @click="novelManager.windowOperation.minimize()">
+      <svg width="22" height="22" xmlns="http://www.w3.org/2000/svg" @click="ipcRenderer.send('windowOperation.minimize')">
         <rect fill="#fff" x="3" y="9.41869455274827" width="18.5" height="1" id="svg_1" stroke-width="2" rx="1.5"
               stroke="#000"/>
       </svg>
-      <svg width="22" height="22" xmlns="http://www.w3.org/2000/svg" @click="novelManager.windowOperation.close()">
+      <svg width="22" height="22" xmlns="http://www.w3.org/2000/svg" @click="ipcRenderer.send('windowOperation.close')">
         <rect fill="#fff" x="-2.5" y="9.5" width="24" height="1" id="svg_2" stroke="#000" stroke-width="2" rx="2"
               transform="rotate(45 9.5 9.91869)"/>
         <rect fill="#fff" x="-2.5" y="9.5" width="24" height="1" id="svg_3" stroke="#000" stroke-width="2" rx="2"
@@ -69,11 +69,11 @@ import SidebarItem from '@/components/sidebar/item.vue'
 import LoadingNotice from '@/components/main/loading.vue'
 import ErrorComponent from '@/components/main/errorComponent.vue'
 import FastUpdateItem from '@/components/main/fastUpdateItem.vue'
+import ipcRenderer from '@/modules/ipcRenderer'
 
 const store: Store<any> = useStore()
 const strings = computed<any>(() => store.state.strings)
 
-const novelManager = (window as any).novelManager
 const updatingBooks: Array<UpdatingBook | string> = reactive([])
 
 function languageToggle (lang: string): void {
@@ -83,7 +83,7 @@ function languageToggle (lang: string): void {
 async function loadUpdatingBooks (force = false) {
   updatingBooks.length = 0
   try {
-    updatingBooks.push(...await novelManager.profileHandle.updatingBooks.all(force))
+    updatingBooks.push(...await ipcRenderer.invoke('profileHandle.updatingBooks.all', force))
   } catch (e) {
     updatingBooks.push('ERROR')
     console.error(e)

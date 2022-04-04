@@ -1,11 +1,10 @@
 import { createStore } from 'vuex'
-
-const novelManager = (window as any).novelManager
+import ipcRenderer from '@/modules/ipcRenderer'
 
 export default createStore({
   state () {
-    const settings = novelManager.profileHandle.settings.get()
-    const strings = settings.language === 'system' || !settings.language ? novelManager.languageToggle(navigator.language) : novelManager.languageToggle(settings.language)
+    const settings = ipcRenderer.sendSync('profileHandle.settings.get')
+    const strings = settings.language === 'system' || !settings.language ? ipcRenderer.sendSync('languageToggle', navigator.language) : ipcRenderer.sendSync('languageToggle', settings.language)
     return {
       settings,
       strings
@@ -21,7 +20,7 @@ export default createStore({
   actions: {
     async languageToggle ({ commit, state }, lang: string) {
       try {
-        state.strings = state.statesettings.language === 'system' || !state.settings.language ? novelManager.languageToggle(navigator.language) : novelManager.languageToggle(state.settings.language)
+        state.strings = state.settings.language === 'system' || !state.settings.language ? ipcRenderer.sendSync('languageToggle', navigator.language) : ipcRenderer.sendSync('languageToggle', state.settings.language)
         commit('languageToggle', lang)
       } catch (err: any) {
         if (err.message.includes('no such file or directory')) {
