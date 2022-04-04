@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-var-requires,no-new-func */
 'use strict'
-import { app, protocol, BrowserWindow, ipcMain } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, dialog } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import fs from 'fs'
@@ -11,6 +10,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 // global value definition
 let mainWindow: BrowserWindow
 let settings: any
+let strings: any
 const updatingBooks: booksHandle.UpdatingBook[] = []
 // end definition
 
@@ -86,7 +86,6 @@ async function createWindow () {
       devTools: isDevelopment
     }
   })
-
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
     if (!process.env.IS_TEST) mainWindow.webContents.openDevTools()
@@ -130,7 +129,7 @@ if (isDevelopment) {
 }
 
 app.on('quit', () => {
-  const temp = JSON.stringify(settings, null, '  ')
+  const temp = JSON.stringify(settings, null, '  ') + '\n'
   fs.writeFileSync('./data/settings.json', temp, { encoding: 'utf-8' })
 })
 
@@ -138,7 +137,8 @@ ipcMain.on('windowOperation.minimize', () => mainWindow.minimize())
 ipcMain.on('windowOperation.close', () => mainWindow.close())
 
 ipcMain.on('languageToggle', async (ipc, lang) => {
-  ipc.returnValue = await fs.promises.readFile(`./languages/${lang}.json`, { encoding: 'utf-8' }).then(value => JSON.parse(value))
+  strings = await fs.promises.readFile(`./languages/${lang}.json`, { encoding: 'utf-8' }).then(value => JSON.parse(value))
+  ipc.returnValue = strings
 })
 
 ipcMain.on('profileHandle.settings.get', async (ipc) => {
@@ -146,9 +146,9 @@ ipcMain.on('profileHandle.settings.get', async (ipc) => {
   ipc.returnValue = Object.assign({}, settings, { isDevelopment: isDevelopment })
 })
 
-ipcMain.handle('profileHandle.settings.set', async (_, payload) => {
-  delete payload.isDevelopment
-  settings = payload
+ipcMain.handle('profileHandle.settings.set', async (_, temp) => {
+  delete temp.isDevelopment
+  settings = temp
 })
 
 ipcMain.handle('profileHandle.updatingBooks.all', async (_, force: boolean) => {
@@ -158,4 +158,11 @@ ipcMain.handle('profileHandle.updatingBooks.all', async (_, force: boolean) => {
     info.push(await book.getBookInfo(force))
   }
   return info
+})
+
+ipcMain.handle('dialogHandle.selectBooksPath', () => {
+  return dialog.showOpenDialog(mainWindow, {
+    title: strings.dialog.selectBooksPath,
+    properties: ['openDirectory', 'dontAddToRecent', 'promptToCreate']
+  })
 })

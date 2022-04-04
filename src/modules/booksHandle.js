@@ -34,9 +34,25 @@ const init = (async function () {
 //
 // }
 
-// async function _getChapterTemplate (url, regex, charMap) {
-//
-// }
+// TODO: multipage support
+// noinspection JSUnusedLocalSymbols
+async function _getChapterTemplate (url, regex, charMap) {
+  const res = got.get(url)
+  const data = await res.buffer()
+  const dataEncoding = (await res).headers['content-type'].match(/(?<=charset=)\w+/)[0]
+  let string
+  if (!['UTF-8', 'utf8', 'utf-8', 'UTF8'].includes(dataEncoding)) {
+    string = encoding.convert(data, 'utf8', dataEncoding).toString()
+  } else {
+    string = data.toString()
+  }
+  regex = new RegExp(regex, 's')
+  string = string.match(regex)[1]
+  for (const char in charMap) {
+    string = string.replaceAll(char, charMap[char])
+  }
+  return string
+}
 
 class BookSource {
   constructor (id, s) {

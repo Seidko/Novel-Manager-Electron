@@ -1,5 +1,5 @@
 import { createStore } from 'vuex'
-import ipcRenderer from '@/modules/ipcRenderer'
+import { ipcRenderer } from '@/modules/ipcRenderer'
 
 export default createStore({
   state () {
@@ -7,26 +7,32 @@ export default createStore({
     const strings = settings.language === 'system' || !settings.language ? ipcRenderer.sendSync('languageToggle', navigator.language) : ipcRenderer.sendSync('languageToggle', settings.language)
     return {
       settings,
-      strings
+      strings,
+      page: 'homepage'
     }
   },
   getters: {
   },
   mutations: {
-    languageToggle (state: any, lang: string) {
-      state.settings.language = lang
+    changePage (state: any, page: string) {
+      state.page = page
     }
   },
   actions: {
-    async languageToggle ({ commit, state }, lang: string) {
+    async languageToggle ({ state }: any, lang: string) {
+      state.settings.language = lang
       try {
         state.strings = state.settings.language === 'system' || !state.settings.language ? ipcRenderer.sendSync('languageToggle', navigator.language) : ipcRenderer.sendSync('languageToggle', state.settings.language)
-        commit('languageToggle', lang)
       } catch (err: any) {
         if (err.message.includes('no such file or directory')) {
           throw new Error('Error: no such language in languages directory!')
         }
       }
+    },
+    async changeSettings ({ state }: any, newSettings) {
+      const temp = Object.assign({}, state.settings, newSettings)
+      await ipcRenderer.invoke('profileHandle.settings.set', temp)
+      state.settings = temp
     }
   },
   modules: {

@@ -38,22 +38,25 @@
             <span v-pre class="icon">⏩</span>
             <span class="text">{{ strings.ui.main.fastUpdate }}</span>
           </div>
-          <div class="refresh clickable" @click="loadUpdatingBooks(true)">
+          <div class="refresh clickable" @click="loadUpdatingBooks(true)" v-if="store.state.settings.booksPath">
             <span class="text">{{ strings.ui.main.refresh }}</span>
             <span v-pre class="icon">🔄</span>
           </div>
         </div>
         <div class="content">
-          <template v-if="!updatingBooks.length">
-            <LoadingNotice class="item" style="height: 30vh" />
+          <template v-if="store.state.settings.booksPath">
+            <LoadingNotice v-if="!updatingBooks.length" class="item" style="height: 30vh" />
+            <ErrorComponent v-else-if="updatingBooks[0] === 'ERROR'" class="item" @click="loadUpdatingBooks">
+              {{ strings.ui.main.errors.novelInfoGettingError }}
+            </ErrorComponent>
+            <template v-else>
+              <FastUpdateItem v-for="book of updatingBooks" :key="book.name" :book="book"/>
+              <p v-for="i of [0, 1, 2, 3]" class="fill" :key="i"></p>
+            </template>
           </template>
-          <ErrorComponent v-else-if="updatingBooks[0] === 'ERROR'" class="item" @click="loadUpdatingBooks">
-            {{ strings.ui.main.errors.novelInfoGettingError }}
+          <ErrorComponent class="item" v-else @click="selectBooksPath">
+            {{ strings.ui.main.errors.noBooksPath }}
           </ErrorComponent>
-          <template v-else>
-            <FastUpdateItem v-for="book of updatingBooks" :key="book.name" :book="book"/>
-            <p v-for="i of [0, 1, 2, 3]" class="fill" :key="i"></p>
-          </template>
         </div>
       </div>
     </div>
@@ -69,7 +72,7 @@ import SidebarItem from '@/components/sidebar/item.vue'
 import LoadingNotice from '@/components/main/loading.vue'
 import ErrorComponent from '@/components/main/errorComponent.vue'
 import FastUpdateItem from '@/components/main/fastUpdateItem.vue'
-import ipcRenderer from '@/modules/ipcRenderer'
+import { ipcRenderer } from '@/modules/ipcRenderer'
 
 const store: Store<any> = useStore()
 const strings = computed<any>(() => store.state.strings)
@@ -90,8 +93,17 @@ async function loadUpdatingBooks (force = false) {
   }
 }
 
+async function selectBooksPath () {
+  const raw = await ipcRenderer.invoke('dialogHandle.selectBooksPath')
+  if (!raw.canceled) {
+    await store.dispatch('changeSettings', {
+      booksPath: raw.filePaths[0]
+    })
+  }
+}
+
 onMounted(async () => {
-  if (process.env.NODE_ENV !== 'production') {
+  if (store.state.settings.isDevelopment) {
     (window as any).vueAPI = (getCurrentInstance() as any).setupState
     languageToggle(store.state.settings.language)
   }
@@ -105,9 +117,7 @@ onMounted(async () => {
     document.getElementById('app')!.style.backgroundImage = 'url("./assets/default-background.png");'
   }
 
-  setTimeout(async () => {
-    await loadUpdatingBooks()
-  }, 1)
+  loadUpdatingBooks().then(() => console.log('Updating books loaded'))
 })
 </script>
 

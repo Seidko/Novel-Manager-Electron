@@ -18,8 +18,12 @@
       "loading": "加载中...",
       "refresh": "刷新",
       "errors": {
+        "noBooksPath": "没有电子书存放文件夹，点击以选择",
         "novelInfoGettingError": "无法获取书籍信息，可能是书源拒绝了访问或者网络问题（点击以重新加载）"
       }
     }
+  },
+  "dialog": {
+    "selectBooksPath": "选择电子书文件夹"
   }
 }

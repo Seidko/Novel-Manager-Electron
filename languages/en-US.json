@@ -18,8 +18,12 @@
       "loading": "Loading...",
       "refresh": "Refresh",
       "errors": {
+        "noBooksPath": "No Books Path, click to select the path",
         "novelInfoGettingError": "Cannot get book info from source. It may be rejected by source or network error. (Click to reload)"
       }
     }
+  },
+  "dialog": {
+    "selectBooksPath": "Select Books Path"
   }
 }
