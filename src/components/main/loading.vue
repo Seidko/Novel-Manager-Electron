@@ -1,11 +1,12 @@
 <template>
   <div class="row">
     <div class="column">
-      <div class="animation" />
+      <div class="animation"/>
       <div class="text">
-        {{ strings.ui.main.loading }}
+        <slot>
+          {{ strings.ui.main.loading }}
+        </slot>
       </div>
-      <div class="text"><slot/></div>
     </div>
   </div>
 </template>

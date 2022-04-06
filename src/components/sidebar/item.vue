@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span class="icon" v-html="props.icon"></span>
+    <span class="icon" v-html="props.icon ? props.icon : ''" />
     <span class="text">
       <slot>
         <span style="background-color: red">Something Error Happened</span>
@@ -10,9 +10,9 @@
 </template>
 
 <script lang="ts" setup>
-const props = defineProps({
-  icon: String
-})
+const props = defineProps<{
+  icon?: string
+}>()
 </script>
 
 <style scoped>

@@ -19,7 +19,8 @@
       "refresh": "刷新",
       "errors": {
         "noBooksPath": "没有电子书存放文件夹，点击以选择",
-        "novelInfoGettingError": "无法获取书籍信息，可能是书源拒绝了访问或者网络问题（点击以重新加载）"
+        "novelInfoGettingError": "“${name}”获取出错！可能是书源或者网络的问题（点击以重新加载）",
+        "noBooksIsUpdating": "都是空的！去搜索或者去书城看看吧！"
       }
     }
   },

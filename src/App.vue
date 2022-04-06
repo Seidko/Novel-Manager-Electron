@@ -5,7 +5,8 @@
       <span class="text">Novel Manager</span>
     </div>
     <div class="button">
-      <svg width="22" height="22" xmlns="http://www.w3.org/2000/svg" @click="ipcRenderer.send('windowOperation.minimize')">
+      <svg width="22" height="22" xmlns="http://www.w3.org/2000/svg"
+           @click="ipcRenderer.send('windowOperation.minimize')">
         <rect fill="#fff" x="3" y="9.41869455274827" width="18.5" height="1" id="svg_1" stroke-width="2" rx="1.5"
               stroke="#000"/>
       </svg>
@@ -18,20 +19,23 @@
     </div>
   </nav>
   <aside class="sidebar">
-    <SidebarParagraph>{{ strings.ui.sidebar.fetch }}</SidebarParagraph>
-    <SidebarItem icon="🏠">{{ strings.ui.sidebar.homepage }}</SidebarItem>
-    <SidebarItem icon="📚">{{ strings.ui.sidebar.bookstore }}</SidebarItem>
-    <SidebarItem icon="🔎">{{ strings.ui.sidebar.search }}</SidebarItem>
-    <SidebarItem icon="⬇">{{ strings.ui.sidebar.download }}</SidebarItem>
-    <SidebarItem icon="🔄">{{ strings.ui.sidebar.update }}</SidebarItem>
-    <SidebarParagraph>{{ strings.ui.sidebar.tools }}</SidebarParagraph>
-    <SidebarItem icon="✂">{{ strings.ui.sidebar.split }}</SidebarItem>
-    <SidebarItem icon="🛑">{{ strings.ui.sidebar.adblock }}</SidebarItem>
-    <SidebarParagraph>{{ strings.ui.sidebar.manage }}</SidebarParagraph>
-    <SidebarItem icon="⚙">{{ strings.ui.sidebar.settings }}</SidebarItem>
+    <template v-if="page !== 'settings'">
+      <SidebarParagraph>{{ strings.ui.sidebar.fetch }}</SidebarParagraph>
+      <SidebarItem icon="🏠" @click="page = 'homepage'">{{ strings.ui.sidebar.homepage }}</SidebarItem>
+      <SidebarItem icon="📚" @click="page = 'bookstore'">{{ strings.ui.sidebar.bookstore }}</SidebarItem>
+      <SidebarItem icon="🔎" @click="page = 'search'">{{ strings.ui.sidebar.search }}</SidebarItem>
+      <SidebarItem icon="⬇" @click="page = 'download'">{{ strings.ui.sidebar.download }}</SidebarItem>
+      <SidebarItem icon="🔄" @click="page = 'update'">{{ strings.ui.sidebar.update }}</SidebarItem>
+      <SidebarParagraph>{{ strings.ui.sidebar.tools }}</SidebarParagraph>
+      <SidebarItem icon="✂" @click="page = 'split'">{{ strings.ui.sidebar.split }}</SidebarItem>
+      <SidebarItem icon="🛑" @click="page = 'adblock'">{{ strings.ui.sidebar.adblock }}</SidebarItem>
+      <SidebarParagraph>{{ strings.ui.sidebar.manage }}</SidebarParagraph>
+      <SidebarItem icon="⚙" @click="page = 'settings'">{{ strings.ui.sidebar.settings }}</SidebarItem>
+    </template>
+<!-- TODO: settings page -->
   </aside>
   <main class="main">
-    <div id="homepage">
+    <div id="homepage" v-if="page === 'homepage'">
       <div class="fast-update">
         <div class="title">
           <div>
@@ -45,18 +49,21 @@
         </div>
         <div class="content">
           <template v-if="store.state.settings.booksPath">
-            <LoadingNotice v-if="!updatingBooks.length" class="item" style="height: 30vh" />
-            <ErrorComponent v-else-if="updatingBooks[0] === 'ERROR'" class="item" @click="loadUpdatingBooks">
-              {{ strings.ui.main.errors.novelInfoGettingError }}
-            </ErrorComponent>
-            <template v-else>
-              <FastUpdateItem v-for="book of updatingBooks" :key="book.name" :book="book"/>
-              <p v-for="i of [0, 1, 2, 3]" class="fill" :key="i"></p>
+            <MessageboxAsItem v-if="!updatingBooks.length" class="item wide" icon="🛒">
+              {{ strings.ui.main.errors.noBooksIsUpdating }}
+            </MessageboxAsItem>
+            <template v-else v-for="(v, i) of updatingBooks" :key="i">
+              <LoadingNotice v-if="!v?.status" class="item"></LoadingNotice>
+              <MessageboxAsItem v-else-if="v.status === 'ERROR'" class="item" @click="reloadBook(i)">
+                {{ strings.ui.main.errors.novelInfoGettingError.replace('${name}', v.name) }}
+              </MessageboxAsItem>
+              <FastUpdateItem v-else :book="v"/>
             </template>
+            <p v-for="i of [0, 1, 2, 3]" class="fill" :key="i"></p>
           </template>
-          <ErrorComponent class="item" v-else @click="selectBooksPath">
+          <MessageboxAsItem class="item wide" v-else @click="selectBooksPath">
             {{ strings.ui.main.errors.noBooksPath }}
-          </ErrorComponent>
+          </MessageboxAsItem>
         </div>
       </div>
     </div>
@@ -66,18 +73,26 @@
 <script lang="ts" setup>
 import { computed, onMounted, reactive, getCurrentInstance } from 'vue'
 import { useStore, Store } from 'vuex'
-import { UpdatingBook } from '@/modules/booksHandle'
 import SidebarParagraph from '@/components/sidebar/paragraph.vue'
 import SidebarItem from '@/components/sidebar/item.vue'
 import LoadingNotice from '@/components/main/loading.vue'
-import ErrorComponent from '@/components/main/errorComponent.vue'
+import MessageboxAsItem from '@/components/main/messageboxAsItem.vue'
 import FastUpdateItem from '@/components/main/fastUpdateItem.vue'
 import { ipcRenderer } from '@/modules/ipcRenderer'
+import { BookDetail, BookSummary } from '@/modules/booksHandle'
 
 const store: Store<any> = useStore()
 const strings = computed<any>(() => store.state.strings)
+const page = computed<string>({
+  get () {
+    return store.state.page
+  },
+  set (p) {
+    store.commit('changePage', p)
+  }
+})
 
-const updatingBooks: Array<UpdatingBook | string> = reactive([])
+const updatingBooks: Array<BookDetail | undefined> = reactive([])
 
 function languageToggle (lang: string): void {
   store.dispatch('languageToggle', lang)
@@ -85,11 +100,37 @@ function languageToggle (lang: string): void {
 
 async function loadUpdatingBooks (force = false) {
   updatingBooks.length = 0
+  const summaries = await ipcRenderer.invoke('profileHandle.updatingBooks.summaries')
+  updatingBooks.length = summaries.length
+  summaries.forEach(async (v: BookSummary, i: number) => {
+    try {
+      updatingBooks[i] = await ipcRenderer.invoke('profileHandle.updatingBooks.single', v.uuid, force)
+    } catch (e) {
+      console.error(e)
+      updatingBooks[i] = {
+        name: v.name,
+        uuid: v.uuid,
+        author: undefined,
+        status: 'ERROR',
+        category: undefined,
+        updateTime: undefined,
+        updateTimestamp: v.updateTimestamp,
+        description: undefined,
+        cover: undefined,
+        wordCount: undefined,
+        content: []
+      }
+    }
+  })
+}
+
+async function reloadBook (index:number) {
   try {
-    updatingBooks.push(...await ipcRenderer.invoke('profileHandle.updatingBooks.all', force))
+    updatingBooks[index]!.status = undefined
+    updatingBooks[index] = await ipcRenderer.invoke('profileHandle.updatingBooks.single', updatingBooks[index]!.uuid, true)
   } catch (e) {
-    updatingBooks.push('ERROR')
     console.error(e)
+    updatingBooks[index]!.status = 'ERROR'
   }
 }
 
@@ -116,8 +157,7 @@ onMounted(async () => {
   document.getElementById('app')!.onerror = () => {
     document.getElementById('app')!.style.backgroundImage = 'url("./assets/default-background.png");'
   }
-
-  loadUpdatingBooks().then(() => console.log('Updating books loaded'))
+  loadUpdatingBooks()
 })
 </script>
 
@@ -129,6 +169,7 @@ onMounted(async () => {
 /*noinspection CssUnusedSymbol*/
 body {
   margin: 0;
+  overflow-x: hidden;
 }
 
 #app {
@@ -232,10 +273,10 @@ body {
 }
 
 .fast-update .content {
-  transition    : all 1s ease;
-  display       : flex;
+  transition: all 1s ease;
+  display: flex;
   flex-direction: row;
-  flex-wrap     : wrap;
+  flex-wrap: wrap;
 }
 
 .fast-update .content .item {
@@ -247,6 +288,10 @@ body {
   border-radius: 3px;
   background: #FFF;
   box-shadow: 2px 2px 5px #383838;
+}
+
+.item.wide {
+  height: 30vh;
 }
 
 .fast-update .content .fill {

@@ -3,17 +3,18 @@
     <img class="cover" :src="props.book.cover" alt="cover"/>
     <span class="name">{{ props.book.name }}</span>
     <span class="info">
-        {{ props.book.author }}
-        {{ props.book.category ? "| " + props.book.category : "" }}
-        {{ props.book.status ? "| " + props.book.status : "" }}
-        {{ props.book.updateTime ? "| " + props.book.updateTime : "" }}
+      {{ props.book.author }}
+      {{ props.book.category ? "| " + props.book.category : "" }}
+      {{ props.book.status ? "| " + props.book.status : "" }}
+      {{ props.book.updateTime ? "| " + props.book.updateTime : "" }}
     </span>
-    <span class="newest-chapter">{{ props.book.content[props.book.content.length - 1][1] }}</span>
+    <p class="newest-chapter">{{ props.book.content[props.book.content.length - 1][1] }}</p>
   </div>
 </template>
 
 <script lang="ts" setup>
 const props = defineProps(['book'])
+
 </script>
 
 <style scoped>
@@ -60,6 +61,7 @@ const props = defineProps(['book'])
   grid-column-end: 5;
   font-size: 11.5px;
   font-weight: 700;
-  color: #464646
+  color: #464646;
+  margin: 0;
 }
 </style>

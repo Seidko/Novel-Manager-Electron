@@ -1,6 +1,9 @@
+// noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
+
 import fs from 'fs'
 import encoding from 'encoding'
 import got from 'got'
+import { v4 as uuid, validate } from 'uuid'
 
 const Fn = Function
 const sources = {}
@@ -35,7 +38,6 @@ const init = (async function () {
 // }
 
 // TODO: multipage support
-// noinspection JSUnusedLocalSymbols
 async function _getChapterTemplate (url, regex, charMap) {
   const res = got.get(url)
   const data = await res.buffer()
@@ -86,9 +88,22 @@ class BookSource {
 
 class Book {
   constructor (s) {
+    this.uuid = validate(s.uuid) ? s.uuid : uuid()
     this.name = s.name
     this.sources = s.sources
-    this._bookInfo = {}
+    this._detail = {
+      name: this.name,
+      uuid: this.uuid,
+      author: undefined,
+      status: undefined,
+      category: undefined,
+      updateTime: undefined,
+      updateTimestamp: s.recentUpdateTimestamp,
+      description: undefined,
+      cover: undefined,
+      wordCount: undefined,
+      content: []
+    }
     this.sources.sort((a, b) => {
       if (a.using && b.using) throw new Error('Two sources cannot be used at the same time!')
       if (a.using) return -1
@@ -97,37 +112,25 @@ class Book {
     })
   }
 
-  // noinspection JSUnusedGlobalSymbols
-  async getBookInfo (force = false) {
+  getSummary () {
+    return {
+      name: this.name,
+      uuid: this.uuid,
+      updateTimestamp: this._detail.recentUpdateTimestamp
+    }
+  }
+
+  async getDetail (force = false) {
     if (!this.sources.length) {
-      return {
-        name: this.name,
-        author: null,
-        status: null,
-        category: null,
-        updateTime: null,
-        updateTimestamp: null,
-        description: null,
-        cover: null,
-        wordCount: null,
-        content: []
-      }
+      return this._detail
     }
     if (this.sources[0].using) {
       await init
-      if (force || (!this._bookInfo.name)) {
-        try {
-          this._bookInfo = await sources[this.sources[0].sourceId].getBookInfo(this.sources[0].bookId)
-        } catch (e) {
-          if (e.code === 'ECONNRESET') {
-            throw new Error('Cannot get book info from source. It may be rejected by source or network error.')
-          } else {
-            throw e
-          }
-        }
-        return this._bookInfo
+      if (force || (!this._detail.status)) {
+        this._detail = await sources[this.sources[0].sourceId].getBookInfo(this.sources[0].bookId)
+        return this._detail
       } else {
-        return this._bookInfo
+        return this._detail
       }
     }
   }
@@ -142,3 +145,4 @@ class UpdatingBook extends Book {
 }
 
 export default { UpdatingBook, Book, BookSource }
+export { UpdatingBook, Book, BookSource }

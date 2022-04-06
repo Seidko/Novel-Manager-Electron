@@ -4,7 +4,8 @@ import { ipcRenderer } from '@/modules/ipcRenderer'
 export default createStore({
   state () {
     const settings = ipcRenderer.sendSync('profileHandle.settings.get')
-    const strings = settings.language === 'system' || !settings.language ? ipcRenderer.sendSync('languageToggle', navigator.language) : ipcRenderer.sendSync('languageToggle', settings.language)
+    if (!settings.language) settings.language = 'system'
+    const strings = settings.language === 'system' ? ipcRenderer.sendSync('languageToggle', navigator.language) : ipcRenderer.sendSync('languageToggle', settings.language)
     return {
       settings,
       strings,
@@ -22,7 +23,7 @@ export default createStore({
     async languageToggle ({ state }: any, lang: string) {
       state.settings.language = lang
       try {
-        state.strings = state.settings.language === 'system' || !state.settings.language ? ipcRenderer.sendSync('languageToggle', navigator.language) : ipcRenderer.sendSync('languageToggle', state.settings.language)
+        state.strings = state.settings.language === 'system' ? ipcRenderer.sendSync('languageToggle', navigator.language) : ipcRenderer.sendSync('languageToggle', state.settings.language)
       } catch (err: any) {
         if (err.message.includes('no such file or directory')) {
           throw new Error('Error: no such language in languages directory!')

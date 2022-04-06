@@ -4,18 +4,26 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import fs from 'fs'
 import path from 'path'
-import booksHandle from '@/modules/booksHandle'
+import { UpdatingBook } from '@/modules/booksHandle'
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global value definition
 let mainWindow: BrowserWindow
 let settings: any
 let strings: any
-const updatingBooks: booksHandle.UpdatingBook[] = []
+const updatingBooks: UpdatingBook[] = []
+const updateTask: UpdatingBook[] = []
 // end definition
 
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', privileges: { secure: true, standard: true } }
+  {
+    scheme: 'app',
+    privileges: {
+      secure: true,
+      standard: true
+    }
+  }
 ])
 
 const initLocal = (async function () {
@@ -33,11 +41,11 @@ const initLocal = (async function () {
       settings = {}
       await fs.promises.writeFile('./data/settings.json', JSON.stringify(settings, null, '  '), { encoding: 'utf-8' })
       console.warn('WARN No settings file, created one.')
-    } else throw e
+    } else {
+      throw e
+    }
   }
-})()
 
-const initRemote = (async function () {
   let temp1: any = {
     updating: []
   }
@@ -54,22 +62,14 @@ const initRemote = (async function () {
     if (e.errno === -4058) {
       await fs.promises.writeFile('./data/books.json', JSON.stringify(temp1, null, '  '), { encoding: 'utf-8' })
       console.warn('WARN No books file, created one.')
-    } else throw e
-  }
-
-  for (const book of temp1.updating) {
-    updatingBooks.push(new booksHandle.UpdatingBook(book))
-  }
-
-  for (const book of updatingBooks) {
-    try {
-      await book.getBookInfo(false)
-    } catch (e) {
-      console.error(e)
+    } else {
+      throw e
     }
   }
 
-  return true
+  for (const book of temp1.updating) {
+    updatingBooks.push(new UpdatingBook(book))
+  }
 })()
 
 async function createWindow () {
@@ -151,13 +151,28 @@ ipcMain.handle('profileHandle.settings.set', async (_, temp) => {
   settings = temp
 })
 
-ipcMain.handle('profileHandle.updatingBooks.all', async (_, force: boolean) => {
-  await initRemote
-  const info = []
+ipcMain.handle('profileHandle.updatingBooks.summaries', async (_) => {
+  await initLocal
+  const summaries = []
   for (const book of updatingBooks) {
-    info.push(await book.getBookInfo(force))
+    summaries.push(await book.getSummary())
   }
-  return info
+  return summaries
+})
+
+ipcMain.handle('profileHandle.updatingBooks.count', async (_) => {
+  await initLocal
+  return updatingBooks.length
+})
+
+ipcMain.handle('profileHandle.updatingBooks.single', async (_, uuid, force) => {
+  await initLocal
+  const book = updatingBooks.find(e => e.getSummary().uuid === uuid)
+  if (book) {
+    return await book.getDetail(force)
+  } else {
+    throw new Error('No such book in the List!')
+  }
 })
 
 ipcMain.handle('dialogHandle.selectBooksPath', () => {
@@ -165,4 +180,8 @@ ipcMain.handle('dialogHandle.selectBooksPath', () => {
     title: strings.dialog.selectBooksPath,
     properties: ['openDirectory', 'dontAddToRecent', 'promptToCreate']
   })
+})
+
+ipcMain.handle('fetchHandle.startUpdating', async (_, uuid) => {
+  await initLocal
 })

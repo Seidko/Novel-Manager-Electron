@@ -18,8 +18,9 @@
       "loading": "Loading...",
       "refresh": "Refresh",
       "errors": {
-        "noBooksPath": "No Books Path, click to select the path",
-        "novelInfoGettingError": "Cannot get book info from source. It may be rejected by source or network error. (Click to reload)"
+        "noBooksPath": "No books saving path, click to select the path",
+        "novelInfoGettingError": "Cannot get \"${name}\" from source. It maybe the source or network problem. (Click to reload)",
+        "noBooksIsUpdating": "Everywhere is empty! Visit bookstore or search one!"
       }
     }
   },
