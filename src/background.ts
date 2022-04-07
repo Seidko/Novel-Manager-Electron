@@ -184,4 +184,5 @@ ipcMain.handle('dialogHandle.selectBooksPath', () => {
 
 ipcMain.handle('fetchHandle.startUpdating', async (_, uuid) => {
   await initLocal
+  const book = updatingBooks.find(e => e.getSummary().uuid === uuid)
 })

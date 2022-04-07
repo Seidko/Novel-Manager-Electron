@@ -64,7 +64,6 @@ class BookSource {
     for (const i in s.patterns) {
       switch (s.patterns[i].method) {
         case 'js-file':
-          console.warn('WARN Use JavaScript src file is UNSAFE, recommend to use regex to get info from source')
           this._getBookInfo = new Fn('return ' + fs.readFileSync(`./data/patterns/${id}/bookInfo.js`, { encoding: 'utf-8' }))()
           break
         case 'regex':
@@ -98,7 +97,7 @@ class Book {
       status: undefined,
       category: undefined,
       updateTime: undefined,
-      updateTimestamp: s.recentUpdateTimestamp,
+      updateTimestamp: undefined,
       description: undefined,
       cover: undefined,
       wordCount: undefined,
@@ -115,8 +114,7 @@ class Book {
   getSummary () {
     return {
       name: this.name,
-      uuid: this.uuid,
-      updateTimestamp: this._detail.recentUpdateTimestamp
+      uuid: this.uuid
     }
   }
 
@@ -141,6 +139,17 @@ class UpdatingBook extends Book {
     super(s)
     this.recentUpdateTimestamp = s.recentUpdateTimestamp
     this.recentUpdateChapterName = s.recentUpdateChapterName
+  }
+
+  async getDetail (force = false) {
+    super.getDetail.apply(this, [force])
+  }
+
+  async startUpdating () {
+    if (!this._detail.status) this._detail = await sources[this.sources[0].sourceId].getBookInfo(this.sources[0].bookId)
+    if (!this.recentUpdateTimestamp && this.recentUpdateChapterName === this._detail.updateTimestamp) {
+      console.log('a')
+    }
   }
 }
 

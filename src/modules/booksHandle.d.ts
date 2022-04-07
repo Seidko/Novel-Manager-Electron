@@ -2,7 +2,6 @@ declare module '@/modules/booksHandle' {
   interface BookSummary {
     name: string
     uuid: string
-    updateTimestamp: number
   }
   interface BookDetail {
     name: string,
@@ -16,6 +15,9 @@ declare module '@/modules/booksHandle' {
     cover?: string,
     wordCount?: number | string,
     content?: string[][]
+  }
+  interface UpdatingBookDetail extends BookDetail {
+    chaptersNeedUpdate: string[][]
   }
   declare const sources
   declare class Book {

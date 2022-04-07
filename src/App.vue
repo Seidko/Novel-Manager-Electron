@@ -79,7 +79,7 @@ import LoadingNotice from '@/components/main/loading.vue'
 import MessageboxAsItem from '@/components/main/messageboxAsItem.vue'
 import FastUpdateItem from '@/components/main/fastUpdateItem.vue'
 import { ipcRenderer } from '@/modules/ipcRenderer'
-import { BookDetail, BookSummary } from '@/modules/booksHandle'
+import { UpdatingBookDetail, BookSummary } from '@/modules/booksHandle'
 
 const store: Store<any> = useStore()
 const strings = computed<any>(() => store.state.strings)
@@ -92,7 +92,7 @@ const page = computed<string>({
   }
 })
 
-const updatingBooks: Array<BookDetail | undefined> = reactive([])
+const updatingBooks: Array<UpdatingBookDetail | undefined> = reactive([])
 
 function languageToggle (lang: string): void {
   store.dispatch('languageToggle', lang)
@@ -114,11 +114,12 @@ async function loadUpdatingBooks (force = false) {
         status: 'ERROR',
         category: undefined,
         updateTime: undefined,
-        updateTimestamp: v.updateTimestamp,
+        updateTimestamp: undefined,
         description: undefined,
         cover: undefined,
         wordCount: undefined,
-        content: []
+        content: [],
+        chaptersNeedUpdate: []
       }
     }
   })
