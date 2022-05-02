@@ -148,6 +148,7 @@ ipcMain.on('profileHandle.settings.get', async (ipc) => {
 
 ipcMain.handle('profileHandle.settings.set', async (_, temp) => {
   delete temp.isDevelopment
+  delete temp.error
   settings = temp
 })
 
@@ -179,6 +180,10 @@ ipcMain.handle('dialogHandle.selectBooksPath', () => {
   return dialog.showOpenDialog(mainWindow, {
     title: strings.dialog.selectBooksPath,
     properties: ['openDirectory', 'dontAddToRecent', 'promptToCreate']
+  }).then(v => {
+    if (!v.canceled) {
+      return path.relative(__dirname, v.filePaths[0])
+    }
   })
 })
 

@@ -1,16 +1,11 @@
-function stringSimilarity (strA, strB) {
+function editDistance (strA, strB) {
+  // Levenshtein Edit Distance
   if (strA === strB) {
     return 1.0
   }
   if (!strA || !strB) {
     return 0.0
   }
-
-  return Math.max(led(strA, strB), randomlyMatch(strA, strB))
-}
-
-function led (strA, strB) {
-  // Levenshtein Edit Distance
   const arr = new Array(strA.length + 1)
   for (let i1 = 0; i1 <= strA.length; i1++) {
     arr[i1] = new Array(strB.length + 1)
@@ -32,6 +27,12 @@ function led (strA, strB) {
 }
 
 function randomlyMatch (strA, strB, minWordSize = 3, maxWordSize = 8) {
+  if (strA === strB) {
+    return 1.0
+  }
+  if (!strA || !strB) {
+    return 0.0
+  }
   minWordSize = minWordSize / 2
   maxWordSize = maxWordSize / 2
   let counter = 0
@@ -51,3 +52,6 @@ function randomlyMatch (strA, strB, minWordSize = 3, maxWordSize = 8) {
   }
   return counter / 100000
 }
+
+// todo: zh-cn / en-us cosine similarity
+// zh-cn: use jieba to split word

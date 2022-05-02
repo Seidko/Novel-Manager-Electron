@@ -25,14 +25,14 @@
       <SidebarItem icon="📚" @click="page = 'bookstore'">{{ strings.ui.sidebar.bookstore }}</SidebarItem>
       <SidebarItem icon="🔎" @click="page = 'search'">{{ strings.ui.sidebar.search }}</SidebarItem>
       <SidebarItem icon="⬇" @click="page = 'download'">{{ strings.ui.sidebar.download }}</SidebarItem>
-      <SidebarItem icon="🔄" @click="page = 'update'">{{ strings.ui.sidebar.update }}</SidebarItem>
+      <SidebarItem icon="🔁" @click="page = 'update'">{{ strings.ui.sidebar.update }}</SidebarItem>
       <SidebarParagraph>{{ strings.ui.sidebar.tools }}</SidebarParagraph>
       <SidebarItem icon="✂" @click="page = 'split'">{{ strings.ui.sidebar.split }}</SidebarItem>
       <SidebarItem icon="🛑" @click="page = 'adblock'">{{ strings.ui.sidebar.adblock }}</SidebarItem>
       <SidebarParagraph>{{ strings.ui.sidebar.manage }}</SidebarParagraph>
       <SidebarItem icon="⚙" @click="page = 'settings'">{{ strings.ui.sidebar.settings }}</SidebarItem>
     </template>
-<!-- TODO: settings page -->
+    <!-- TODO: settings page -->
   </aside>
   <main class="main">
     <div id="homepage" v-if="page === 'homepage'">
@@ -44,7 +44,7 @@
           </div>
           <div class="refresh clickable" @click="loadUpdatingBooks(true)" v-if="store.state.settings.booksPath">
             <span class="text">{{ strings.ui.main.refresh }}</span>
-            <span v-pre class="icon">🔄</span>
+            <span v-pre class="icon">🔁</span>
           </div>
         </div>
         <div class="content">
@@ -52,14 +52,16 @@
             <MessageboxAsItem v-if="!updatingBooks.length" class="item wide" icon="🛒">
               {{ strings.ui.main.errors.noBooksIsUpdating }}
             </MessageboxAsItem>
-            <template v-else v-for="(v, i) of updatingBooks" :key="i">
-              <LoadingNotice v-if="!v?.status" class="item"></LoadingNotice>
-              <MessageboxAsItem v-else-if="v.status === 'ERROR'" class="item" @click="reloadBook(i)">
-                {{ strings.ui.main.errors.novelInfoGettingError.replace('${name}', v.name) }}
-              </MessageboxAsItem>
-              <FastUpdateItem v-else :book="v"/>
+            <template v-else>
+              <template v-for="(v, i) of updatingBooks" :key="i">
+                <LoadingNotice v-if="!v?.status" class="item"></LoadingNotice>
+                <MessageboxAsItem v-else-if="v.status === 'ERROR'" class="item" @click="reloadBook(i)">
+                  {{ strings.ui.main.errors.novelInfoGettingError.replace('${name}', v.name) }}
+                </MessageboxAsItem>
+                <FastUpdateItem v-else :book="v"/>
+              </template>
+            <span v-for="i of [0, 1, 2, 3]" class="fill" :key="i" />
             </template>
-            <p v-for="i of [0, 1, 2, 3]" class="fill" :key="i"></p>
           </template>
           <MessageboxAsItem class="item wide" v-else @click="selectBooksPath">
             {{ strings.ui.main.errors.noBooksPath }}
@@ -136,11 +138,14 @@ async function reloadBook (index:number) {
 }
 
 async function selectBooksPath () {
-  const raw = await ipcRenderer.invoke('dialogHandle.selectBooksPath')
-  if (!raw.canceled) {
+  try {
     await store.dispatch('changeSettings', {
-      booksPath: raw.filePaths[0]
+      booksPath: await ipcRenderer.invoke('dialogHandle.selectBooksPath')
     })
+  } catch (e: any) {
+    if (e.message !== 'canceled') {
+      throw e
+    }
   }
 }
 

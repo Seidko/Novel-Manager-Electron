@@ -137,12 +137,26 @@ class Book {
 class UpdatingBook extends Book {
   constructor (s) {
     super(s)
+    this._detail.chaptersNeedUpdate = []
     this.recentUpdateTimestamp = s.recentUpdateTimestamp
     this.recentUpdateChapterName = s.recentUpdateChapterName
   }
 
   async getDetail (force = false) {
-    super.getDetail.apply(this, [force])
+    if (!this.sources.length) {
+      return this._detail
+    }
+    if (this.sources[0].using) {
+      await init
+      if (force || (!this._detail.status)) {
+        this._detail = await sources[this.sources[0].sourceId].getBookInfo(this.sources[0].bookId)
+        throw new Error('Uncompleted Code.')
+        // this._detail.chaptersNeedUpdate = randomlyMatch('a')
+        // return this._detail
+      } else {
+        return this._detail
+      }
+    }
   }
 
   async startUpdating () {
