@@ -1,3 +1,6 @@
+> **Note** \
+Due to personal reasons, I have lost the motivation to continue developing this project, so it will be archived. Perhaps I will regain the motivation to pick it up again in the future. This project has given me a lot of front-end development experience, and I hope it will also be helpful to someone in the future. Thank you for visiting!
+
 # 📚 Novel Manager Electron  
 
 <!--suppress CheckImageSize -->
